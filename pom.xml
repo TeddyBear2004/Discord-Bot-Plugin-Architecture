@@ -8,5 +8,12 @@
     <artifactId>discord-bot-plugin-architecture</artifactId>
     <version>0.1</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>20.0.0</version>
+        </dependency>
+    </dependencies>
     
 </project>
