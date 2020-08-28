@@ -5,12 +5,10 @@ import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
+import reactor.util.annotation.NonNull;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author teddy
@@ -48,7 +46,7 @@ public class ConfigHandler {
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
      */
-    public void setObject(@NotNull String key, @NotNull Object value){
+    public void setObject(@NotNull String key, Object value){
         Map<String, Object> data = new HashMap<>(1);
         data.put(key, value);
 
@@ -60,7 +58,7 @@ public class ConfigHandler {
      *
      * @param objectMap The map of all entries.
      */
-    public void setObjects(@NotNull Map<String, @NotNull Object> objectMap){
+    public void setObjects(@NotNull Map<String, Object> objectMap){
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(this.file))){
             Map<String, Object> data = new HashMap<>();
 
@@ -78,7 +76,7 @@ public class ConfigHandler {
      *
      * @param objectMap The map of the entries.
      */
-    public void setObjectsIfNotSet(@NotNull Map<String, Object> objectMap){
+    public void setDefaults(@NotNull Map<String, Object> objectMap){
         map.forEach((s, o) -> objectMap.remove(s));
 
         setObjects(objectMap);
@@ -90,10 +88,91 @@ public class ConfigHandler {
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
      */
-    public void setObjectIfNotSet(@NotNull String key, @NotNull Object value){
+    public void setDefault(@NotNull String key, Object value){
         if(get(key) == null)
             setObject(key, value);
     }
+
+    /**
+     * Set a byte to the given key
+     *
+     * @param key   The key where the value should take place.
+     * @param value The value which will be set.
+     */
+    public void setDefault(@NonNull String key, byte value){
+        setDefault(key, Byte.valueOf(value));
+    }
+
+    /**
+     * Set a short to the given key
+     *
+     * @param key   The key where the value should take place.
+     * @param value The value which will be set.
+     */
+    public void setDefault(@NonNull String key, short value){
+        setDefault(key, Short.valueOf(value));
+    }
+
+    /**
+     * Set a int to the given key
+     *
+     * @param key   The key where the value should take place.
+     * @param value The value which will be set.
+     */
+    public void setDefault(@NonNull String key, int value){
+        setDefault(key, Integer.valueOf(value));
+    }
+
+    /**
+     * Set a long to the given key
+     *
+     * @param key   The key where the value should take place.
+     * @param value The value which will be set.
+     */
+    public void setDefault(@NonNull String key, long value){
+        setDefault(key, Long.valueOf(value));
+    }
+
+    /**
+     * Set a float to the given key
+     *
+     * @param key   The key where the value should take place.
+     * @param value The value which will be set.
+     */
+    public void setDefault(@NonNull String key, float value){
+        setDefault(key, Float.valueOf(value));
+    }
+
+    /**
+     * Set a double to the given key
+     *
+     * @param key   The key where the value should take place.
+     * @param value The value which will be set.
+     */
+    public void setDefault(@NonNull String key, double value){
+        setDefault(key, Double.valueOf(value));
+    }
+
+    /**
+     * Set a char to the given key
+     *
+     * @param key   The key where the value should take place.
+     * @param value The value which will be set.
+     */
+    public void setDefault(@NonNull String key, char value){
+        setDefault(key, Character.valueOf(value));
+    }
+
+    /**
+     * Set a boolean to the given key
+     *
+     * @param key   The key where the value should take place.
+     * @param value The value which will be set.
+     */
+    public void setDefault(@NonNull String key, boolean value){
+        setDefault(key, Boolean.valueOf(value));
+    }
+
 
     /**
      * Return the object where the key is set as key or null if the key is not set
@@ -114,74 +193,143 @@ public class ConfigHandler {
      */
     @Nullable
     public String getString(@NotNull String key){
-        Object o = get(key);
+        Object value = get(key);
+        if(value == null)
+            throw new NoSuchElementException();
 
-        return o instanceof String ? (String)o : null;
+        return (String)get(key);
     }
 
     /**
-     * Return the list where the key is set as key or null if the key is not set or the value is no integer.
+     * Return the integer where the key is set.
      *
      * @param key The key of the value
-     * @return null if the key is not set or is not a integer or the set value
+     * @return The set value
+     * @throws NoSuchElementException If the value is neither set nor is a integer.
      */
-    @Nullable
-    public Integer getInt(@NotNull String key){
-        Object o = get(key);
-
-        return o instanceof Integer ? (Integer)o : null;
+    public int getInt(@NotNull String key){
+        try{
+            return (int)get(key);
+        }catch(ClassCastException | NullPointerException e){
+            throw new NoSuchElementException();
+        }
     }
 
     /**
-     * Return the list where the key is set as key or null if the key is not set or the value is no boolean.
+     * Return the boolean where the key is set.
      *
      * @param key The key of the value
-     * @return null if the key is not set or is not a boolean or the set value
+     * @return The set value
+     * @throws NoSuchElementException If the value is neither set nor is a boolean.
      */
-    @Nullable
-    public Boolean getBoolean(@NotNull String key){
-        Object o = get(key);
-
-        return o instanceof Boolean ? (Boolean)o : null;
+    public boolean getBoolean(@NotNull String key){
+        try{
+            return (boolean)get(key);
+        }catch(ClassCastException | NullPointerException e){
+            throw new NoSuchElementException();
+        }
     }
 
     /**
-     * Return the list where the key is set as key or null if the key is not set or the value is no long.
+     * Return the long where the key is set.
      *
      * @param key The key of the value
-     * @return null if the key is not set or is not a long or the set value
+     * @return The set value
+     * @throws NoSuchElementException If the value is neither set nor is a long.
      */
-    @Nullable
-    public Long getLong(@NotNull String key){
-        Object o = get(key);
-
-        return o instanceof Long ? (Long)o : null;
+    public long getLong(@NotNull String key){
+        try{
+            return (long)get(key);
+        }catch(ClassCastException | NullPointerException e){
+            throw new NoSuchElementException();
+        }
     }
 
     /**
-     * Return the list where the key is set as key or null if the key is not set or the value is no double.
+     * Return the double where the key is set.
      *
      * @param key The key of the value
-     * @return null if the key is not set or is not a double or the set value
+     * @return The set value
+     * @throws NoSuchElementException If the value is neither set nor is a double.
      */
-    @Nullable
-    public Double getDouble(@NotNull String key){
-        Object o = get(key);
-
-        return o instanceof Double ? (Double)o : null;
+    public double getDouble(@NotNull String key){
+        try{
+            return (double)get(key);
+        }catch(ClassCastException | NullPointerException e){
+            throw new NoSuchElementException();
+        }
     }
 
     /**
      * Return the list where the key is set as key or null if the key is not set or the value is no list.
      *
      * @param key The key of the value
-     * @return null if the key is not set or is not a list or the set value
+     * @return null if the key is not set or the set value
+     * @throws ClassCastException if the value is no List.
      */
     @Nullable
     public List<?> getList(@NotNull String key){
-        Object o = get(key);
+        return (List<?>)get(key);
+    }
 
-        return o instanceof List<?> ? (List<?>)o : null;
+    /**
+     * Return the character where the key is set.
+     *
+     * @param key The key of the value
+     * @return The set value
+     * @throws NoSuchElementException If the value is neither set nor is a character.
+     */
+    public char getChar(@NotNull String key){
+        try{
+            return (char)get(key);
+        }catch(ClassCastException | NullPointerException e){
+            throw new NoSuchElementException();
+        }
+    }
+
+    /**
+     * Return the byte where the key is set.
+     *
+     * @param key The key of the value
+     * @return The set value
+     * @throws NoSuchElementException If the value is neither set nor is a byte.
+     */
+    public byte getByte(@NotNull String key){
+        try{
+            return (byte)get(key);
+        }catch(ClassCastException | NullPointerException e){
+            throw new NoSuchElementException();
+        }
+    }
+
+    /**
+     * Return the short where the key is set.
+     *
+     * @param key The key of the value
+     * @return The set value
+     * @throws NoSuchElementException If the value is neither set nor is a short.
+     */
+    public short getShort(@NotNull String key){
+        try{
+            return (short)get(key);
+        }catch(ClassCastException | NullPointerException e){
+            throw new NoSuchElementException();
+        }
+    }
+
+    /**
+     * Return the float where the key is set.
+     *
+     * @param key The key of the value
+     * @return The set value
+     * @throws NoSuchElementException If the value is neither set nor is a float.
+     */
+    public float getFloat(@NotNull String key){
+        try{
+            return (float)get(key);
+        }catch(ClassCastException | NullPointerException e){
+            throw new NoSuchElementException();
+        }
     }
 
     /**
