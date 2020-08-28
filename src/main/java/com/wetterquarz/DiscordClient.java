@@ -29,7 +29,11 @@ public class DiscordClient {
 
     public static void main(String[] args){
     	ConfigHandler config = new ConfigHandler("config");
+
     	config.setObjectIfNotSet("token", "set here the token!");
+
+    	if(config.getString("token") == null)
+    		return;
 
     	discordClient = new DiscordClient(config.getString("token"));
     }
