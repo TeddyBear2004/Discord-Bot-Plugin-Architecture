@@ -1,5 +1,6 @@
 package com.wetterquarz;
 
+import com.wetterquarz.config.ConfigHandler;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 
@@ -25,8 +26,12 @@ public class DiscordClient {
 	}
 	
 	private static DiscordClient discordClient;
+
     public static void main(String[] args){
-    	discordClient = new DiscordClient("to be loaded from config");
+    	ConfigHandler config = new ConfigHandler("config");
+    	config.setObjectIfNotSet("token", "set here the token!");
+
+    	discordClient = new DiscordClient(config.getString("token"));
     }
     
     public static DiscordClient getDiscordClient() {
