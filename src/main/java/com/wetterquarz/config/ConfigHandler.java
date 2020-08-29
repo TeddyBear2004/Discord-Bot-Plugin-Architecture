@@ -35,7 +35,7 @@ public class ConfigHandler {
 
     public ConfigHandler(@NotNull InputStream in){
         this.file = null;
-        this.in = null;
+        this.in = in;
 
         this.map = new HashMap<>();
         reload();
@@ -357,11 +357,12 @@ public class ConfigHandler {
      * Reading the file and load it into the cache. If the file do not exist it will be created.
      */
     public void reload(){
-        if(file == null){
+        if(file == null && in != null){
             Map<String, Object> map = new Yaml().load(this.in);
             this.map = map == null ? new LinkedHashMap<>() : map;
-
-        }else{
+            return;
+        }
+        if(in == null && file != null){
             if(this.file.getParentFile() != null)
                 this.file.getParentFile().mkdirs();
 
