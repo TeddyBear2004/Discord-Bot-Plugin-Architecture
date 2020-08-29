@@ -27,16 +27,7 @@ public class ConfigHandler {
     public ConfigHandler(@NotNull String configFileName){
         this.file = new File("config/" + configFileName + ".yml");
 
-        if(this.file.getParentFile() != null)
-            this.file.getParentFile().mkdirs();
-
-        try{
-            this.file.createNewFile();
-
-        }catch(IOException e){
-            LOGGER.warn("Cannot create config file", e);
-        }
-        map = new HashMap<>();
+        this.map = new HashMap<>();
         reload();
     }
 
@@ -206,7 +197,7 @@ public class ConfigHandler {
      *
      * @param key The key of the value
      * @return null if the key is not set or the set value
-     * @throws ClassCastException if the value is no List.
+     * @throws ClassCastException if the value is not List.
      */
     @Nullable
     public List<?> getList(@NotNull String key){
@@ -334,10 +325,15 @@ public class ConfigHandler {
     }
 
     /**
-     * Reading the file and load it into the cache.
+     * Reading the file and load it into the cache. If the file do not exist it will be created.
      */
     public void reload(){
+        if(this.file.getParentFile() != null)
+            this.file.getParentFile().mkdirs();
+
         try(BufferedReader reader = new BufferedReader(new FileReader(this.file))){
+            this.file.createNewFile();
+
             Map<String, Object> map = new Yaml().load(reader);
 
             this.map = map == null ? new LinkedHashMap<>() : map;
