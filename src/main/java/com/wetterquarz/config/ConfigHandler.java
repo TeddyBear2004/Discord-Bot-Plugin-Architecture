@@ -186,10 +186,11 @@ public class ConfigHandler {
     }
 
     /**
-     * Return the string where the key is set as key or null if the key is not set or the value is no string.
+     * Return the string where the key is set or null if the key is not set or the value is no string.
      *
      * @param key The key of the value
      * @return null if the key is not set or is not a string or the set value
+     * @throws NoSuchElementException If the value is null or not set.
      */
     @Nullable
     public String getString(@NotNull String key){
@@ -198,6 +199,18 @@ public class ConfigHandler {
             throw new NoSuchElementException();
 
         return (String)get(key);
+    }
+
+    /**
+     * Return the list where the key is set or null if the key is not set or the value is no list.
+     *
+     * @param key The key of the value
+     * @return null if the key is not set or the set value
+     * @throws ClassCastException if the value is no List.
+     */
+    @Nullable
+    public List<?> getList(@NotNull String key){
+        return (List<?>)get(key);
     }
 
     /**
@@ -258,18 +271,6 @@ public class ConfigHandler {
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
-    }
-
-    /**
-     * Return the list where the key is set as key or null if the key is not set or the value is no list.
-     *
-     * @param key The key of the value
-     * @return null if the key is not set or the set value
-     * @throws ClassCastException if the value is no List.
-     */
-    @Nullable
-    public List<?> getList(@NotNull String key){
-        return (List<?>)get(key);
     }
 
     /**
