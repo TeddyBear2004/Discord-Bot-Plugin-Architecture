@@ -16,7 +16,8 @@ import java.util.*;
 public class ConfigHandler {
     private static final Logger LOGGER = LogManager.getLogger(ConfigHandler.class.getName());
 
-    @NotNull private final File file;
+    @Nullable private final File file;
+    @Nullable private final InputStream in;
     @NotNull private Map<String, Object> map;
 
     /**
@@ -26,6 +27,15 @@ public class ConfigHandler {
      */
     public ConfigHandler(@NotNull String configFileName){
         this.file = new File("config/" + configFileName + ".yml");
+        this.in = null;
+
+        this.map = new HashMap<>();
+        reload();
+    }
+
+    public ConfigHandler(@NotNull InputStream in){
+        this.file = null;
+        this.in = null;
 
         this.map = new HashMap<>();
         reload();
@@ -78,8 +88,11 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefault(@NotNull String key, Object value){
+        if(file == null)
+            throw new UnsupportedOperationException("You cannot set values if this object is created with an input stream.");
         if(get(key) == null)
             setObject(key, value);
     }
@@ -89,6 +102,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefault(@NonNull String key, byte value){
         setDefault(key, Byte.valueOf(value));
@@ -99,6 +113,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefault(@NonNull String key, short value){
         setDefault(key, Short.valueOf(value));
@@ -109,6 +124,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefault(@NonNull String key, int value){
         setDefault(key, Integer.valueOf(value));
@@ -119,6 +135,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefault(@NonNull String key, long value){
         setDefault(key, Long.valueOf(value));
@@ -129,6 +146,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefault(@NonNull String key, float value){
         setDefault(key, Float.valueOf(value));
@@ -139,6 +157,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefault(@NonNull String key, double value){
         setDefault(key, Double.valueOf(value));
@@ -149,6 +168,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefault(@NonNull String key, char value){
         setDefault(key, Character.valueOf(value));
@@ -159,6 +179,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefault(@NonNull String key, boolean value){
         setDefault(key, Boolean.valueOf(value));
@@ -328,17 +349,23 @@ public class ConfigHandler {
      * Reading the file and load it into the cache. If the file do not exist it will be created.
      */
     public void reload(){
-        if(this.file.getParentFile() != null)
-            this.file.getParentFile().mkdirs();
-
-        try(BufferedReader reader = new BufferedReader(new FileReader(this.file))){
-            this.file.createNewFile();
-
-            Map<String, Object> map = new Yaml().load(reader);
-
+        if(file == null){
+            Map<String, Object> map = new Yaml().load(this.in);
             this.map = map == null ? new LinkedHashMap<>() : map;
-        }catch(IOException e){
-            LOGGER.warn(e);
+
+        }else{
+            if(this.file.getParentFile() != null)
+                this.file.getParentFile().mkdirs();
+
+            try(BufferedReader reader = new BufferedReader(new FileReader(this.file))){
+                this.file.createNewFile();
+
+                Map<String, Object> map = new Yaml().load(reader);
+
+                this.map = map == null ? new LinkedHashMap<>() : map;
+            }catch(IOException e){
+                LOGGER.warn(e);
+            }
         }
     }
 }
