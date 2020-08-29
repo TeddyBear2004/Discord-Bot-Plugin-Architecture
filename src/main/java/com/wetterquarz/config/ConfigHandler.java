@@ -186,7 +186,7 @@ public class ConfigHandler {
     }
 
     /**
-     * Return the list where the key is set as key or null if the key is not set or the value is no string.
+     * Return the string where the key is set as key or null if the key is not set or the value is no string.
      *
      * @param key The key of the value
      * @return null if the key is not set or is not a string or the set value
