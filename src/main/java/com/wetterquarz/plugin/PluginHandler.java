@@ -16,6 +16,13 @@ import java.util.*;
 import java.util.jar.JarFile;
 
 public class PluginHandler {
+	public static final File PLUGIN_FOLDER = new File("./plugins");
+	
+	static {
+		if(!PLUGIN_FOLDER.exists() || !PLUGIN_FOLDER.isDirectory())
+			PLUGIN_FOLDER.mkdir();
+	}
+	
     @NotNull private static final Logger LOGGER = LogManager.getLogger(PluginHandler.class.getName());
     @NotNull private final File pluginDir;
     @NotNull private final List<File> jarFiles;
@@ -30,7 +37,7 @@ public class PluginHandler {
     }
 
     public static void main(String[] args){
-        new PluginHandler(new File("PATH\\TO\\PLUGINFOLDER"));
+        new PluginHandler(PLUGIN_FOLDER);
     }
 
     public void reload(){
