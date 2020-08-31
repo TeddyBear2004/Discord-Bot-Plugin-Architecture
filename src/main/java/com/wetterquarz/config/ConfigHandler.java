@@ -365,7 +365,8 @@ public class ConfigHandler {
      * @param f The config file
      * @return a map from the config. If the file does not exist or other errors appear this will return an empty map.
      */
-    private Map<String, Object> load(File f){
+    @NonNull
+    private Map<String, Object> load(@NonNull File f){
         try{
             return load(new FileInputStream(f));
         }catch(FileNotFoundException e){
@@ -379,7 +380,8 @@ public class ConfigHandler {
      * @param in The input stream
      * @return a map from the config. If the input stream cannot be parsed or other errors appear this will return an empty map.
      */
-    private Map<String, Object> load(InputStream in){
+    @NonNull
+    private Map<String, Object> load(@NonNull InputStream in){
         Map<String, Object> map = new Yaml().load(in);
 
         return map == null ? new LinkedHashMap<>() : map;
