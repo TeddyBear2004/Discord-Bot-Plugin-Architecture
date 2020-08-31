@@ -20,6 +20,10 @@ public class ConfigHandler {
     @Nullable private final InputStream in;
     @NotNull private Map<String, Object> map;
 
+    /**
+     * Create or initialise a configFile at the given location.
+     * @param path Where the config file is or where it should be created
+     */
     public ConfigHandler(@NotNull File path){
         this.file = path;
         this.in = null;
@@ -41,6 +45,10 @@ public class ConfigHandler {
         reload();
     }
 
+    /**
+     * Creates a readOnly version of the ConfigHandler.
+     * @param in The input stream of the ConfigHandler.
+     */
     public ConfigHandler(@NotNull InputStream in){
         this.file = null;
         this.in = in;
