@@ -20,14 +20,14 @@ public class ConfigHandler {
     @Nullable private final InputStream in;
     @NotNull private Map<String, Object> map;
 
-    public ConfigHandler(@NotNull File path) {
-    	this.file = path;
-    	this.in = null;
-    	
-    	this.map = new HashMap<>();
-    	reload();
+    public ConfigHandler(@NotNull File path){
+        this.file = path;
+        this.in = null;
+
+        this.map = new HashMap<>();
+        reload();
     }
-    
+
     /**
      * Create or initialise a configFile at the given location.
      *
@@ -54,6 +54,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setObject(@NotNull String key, Object value){
         Map<String, Object> data = new HashMap<>(1);
@@ -66,8 +67,12 @@ public class ConfigHandler {
      * Set multiple entries at once into the config. If a key already exist it will be overridden.
      *
      * @param objectMap The map of all entries.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setObjects(@NotNull Map<String, Object> objectMap){
+        if(file == null)
+            throw new UnsupportedOperationException("You cannot set values if this object is created with an input stream.");
+
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(this.file))){
             Map<String, Object> data = new HashMap<>();
 
@@ -84,6 +89,7 @@ public class ConfigHandler {
      * Insert all entries of the given map. If a key is already set it will be ignored
      *
      * @param objectMap The map of the entries.
+     * @throws UnsupportedOperationException If this object is created with an input stream.
      */
     public void setDefaults(@NotNull Map<String, Object> objectMap){
         map.forEach((s, o) -> objectMap.remove(s));
