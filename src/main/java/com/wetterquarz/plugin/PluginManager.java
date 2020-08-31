@@ -8,13 +8,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -31,14 +29,9 @@ public class PluginManager {
 	@NotNull
 	private final File pluginDir = PLUGIN_FOLDER;
 	@NotNull
-	private final List<File> jarFiles;
-	@NotNull
-	private Map<String, File> plugins;
+	private Map<String, PluginMetadata> plugins = new HashMap<>();
 
 	public PluginManager() {
-		this.jarFiles = new ArrayList<>();
-		this.plugins = new HashMap<>();
-
 		reload();
 	}
 
@@ -50,35 +43,18 @@ public class PluginManager {
 		for (File file : pluginDir.listFiles()) {
 			if (file.getName().endsWith(".jar")) {
 				try (JarFile jar = new JarFile(file)) {
-					//loadJar(jar, file.toURI().toURL());
-					ConfigHandler configHandler = new ConfigHandler(jar.getInputStream(jar.getEntry("plugin.yml")));
-
-					String name = configHandler.getString("name");
-					if (this.plugins.containsKey(name)) {
-						// todo throw exception
+					PluginMetadata pluginMeta = loadJar(jar, file.toURI().toURL());
+					if(plugins.containsKey(pluginMeta.getName())) {
+						LOGGER.error(pluginMeta.getName() + " already exists.");
 					} else {
-						String mainClass = configHandler.getString("mainClass");
-
-						ClassLoader loader = URLClassLoader.newInstance(new URL[] { file.toURI().toURL() },
-								PluginManager.class.getClassLoader());
-
-						Class<?> clazz = Class.forName(mainClass, true, loader);
-
-						for (Method method : clazz.getMethods()) {
-							Class<?>[] paraTypes = method.getParameterTypes();
-							if (paraTypes.length == 1)
-								if (paraTypes[0] == PluginStartEvent.class) {
-									method.invoke(null, new PluginStartEvent());
-								}
-						}
+						plugins.put(pluginMeta.getName(), pluginMeta);
+						pluginMeta.getPlugin().onLoad();
 					}
-
-				} catch (IOException | ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
+				} catch (IOException e) {
 					LOGGER.warn(e);
 				}
 			}
 		}
-		jarFiles.addAll(Arrays.asList(pluginDir.listFiles()));
 	}
 
 	private PluginMetadata loadJar(JarFile jar, URL jarLoc) throws IOException {
@@ -100,6 +76,7 @@ public class PluginManager {
 		ClassLoader loader = URLClassLoader.newInstance(new URL[] { jarLoc }, getClass().getClassLoader());
 
 		try {
+			@SuppressWarnings("unchecked")
 			Class<? extends Plugin> plugin = (Class<? extends Plugin>) loader.loadClass(main);
 			try {
 				Plugin p = plugin.newInstance();
