@@ -11,11 +11,17 @@ import java.io.*;
 import java.util.*;
 
 /**
+ * You can handle your yaml based config file with this class.
+ * Create a object with an file/filename or with an input stream.
+ * If this class is created with an input stream it is read-only else you can do everything.
+ * This file will be created the first time it does not exist and you call save.
+ *
  * @author teddy
  */
 public class ConfigHandler {
+    @NotNull public static final File CONFIG_FOLDER = new File("config/");
+    @NotNull public static final String CONFIG_FILE_SUFFIX = ".yml";
     @NotNull private static final Logger LOGGER = LogManager.getLogger(ConfigHandler.class.getName());
-
     @Nullable private final File file;
     @NotNull private Map<String, Object> map;
 
@@ -36,7 +42,7 @@ public class ConfigHandler {
      * @param configFileName The config file name
      */
     public ConfigHandler(@NotNull String configFileName){
-        this(new File("config/" + configFileName + ".yml"));
+        this(new File(CONFIG_FOLDER.getPath() + configFileName + CONFIG_FILE_SUFFIX));
     }
 
     /**
