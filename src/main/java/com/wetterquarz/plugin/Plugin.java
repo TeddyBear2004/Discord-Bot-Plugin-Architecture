@@ -1,26 +1,20 @@
 package com.wetterquarz.plugin;
 
-import java.io.File;
-
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.wetterquarz.config.ConfigHandler;
 
 public class Plugin {
-	
-	public Plugin(String name) {
-		logger = LogManager.getLogger(name);
-		config = new ConfigHandler(new File(PluginManager.PLUGIN_FOLDER, name + File.pathSeparator + "config.yml"));
-	}
 
-	private final Logger logger;
+	Logger logger;
 	public Logger getLogger() {
+		if(logger == null) throw new NullPointerException();
 		return logger;
 	}
 	
-	private final ConfigHandler config;
+	ConfigHandler config;
 	public ConfigHandler getConfig() {
+		if(config == null) throw new NullPointerException();
 		return config;
 	}
 	

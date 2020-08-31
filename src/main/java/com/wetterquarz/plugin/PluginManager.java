@@ -45,6 +45,8 @@ public class PluginManager {
 						LOGGER.error(pluginMeta.getName() + " already exists.");
 					} else {
 						plugins.put(pluginMeta.getName(), pluginMeta);
+						pluginMeta.getPlugin().logger = LogManager.getLogger(pluginMeta.getName());
+						pluginMeta.getPlugin().config = new ConfigHandler(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
 						pluginMeta.getPlugin().onLoad();
 					}
 				} catch (IOException e) {
