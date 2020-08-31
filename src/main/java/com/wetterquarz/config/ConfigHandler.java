@@ -380,9 +380,14 @@ public class ConfigHandler {
         if(this.file == null)
             throw new UnsupportedOperationException("This config is read-only.");
 
-            this.map = load(this.file);
+        this.map = load(this.file);
     }
 
+    /**
+     * Create the file if it not exist and save it into the file.
+     *
+     * @throws UnsupportedOperationException if the config is read-only
+     */
     public void save(){
         if(file == null)
             throw new UnsupportedOperationException("This config is read-only.");
