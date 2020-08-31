@@ -11,7 +11,7 @@ public class Plugin {
 	
 	public Plugin(String name) {
 		logger = LogManager.getLogger(name);
-		config = new ConfigHandler(new File(PluginHandler.PLUGIN_FOLDER, name + File.pathSeparator + "config.yml"));
+		config = new ConfigHandler(new File(PluginManager.PLUGIN_FOLDER, name + File.pathSeparator + "config.yml"));
 	}
 
 	private final Logger logger;
