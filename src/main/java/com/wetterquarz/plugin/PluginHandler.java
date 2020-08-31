@@ -40,8 +40,7 @@ public class PluginHandler {
 
         for(File file : pluginDir.listFiles()){
             if(file.getName().endsWith(".jar")){
-                try{
-                    JarFile jar = new JarFile(file);
+                try(JarFile jar = new JarFile(file)) {
                     ConfigHandler configHandler = new ConfigHandler(jar.getInputStream(jar.getEntry("plugin.yml")));
 
                     String name = configHandler.getString("name");
