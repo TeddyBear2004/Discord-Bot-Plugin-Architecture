@@ -14,7 +14,7 @@ import java.util.*;
  * @author teddy
  */
 public class ConfigHandler {
-    private static final Logger LOGGER = LogManager.getLogger(ConfigHandler.class.getName());
+    @NotNull private static final Logger LOGGER = LogManager.getLogger(ConfigHandler.class.getName());
 
     @Nullable private final File file;
     @Nullable private final InputStream in;
