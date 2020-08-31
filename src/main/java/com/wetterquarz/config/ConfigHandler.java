@@ -22,6 +22,7 @@ public class ConfigHandler {
 
     /**
      * Create or initialise a configFile at the given location.
+     *
      * @param path Where the config file is or where it should be created
      */
     public ConfigHandler(@NotNull File path){
@@ -47,6 +48,7 @@ public class ConfigHandler {
 
     /**
      * Creates a readOnly version of the ConfigHandler.
+     *
      * @param in The input stream of the ConfigHandler.
      */
     public ConfigHandler(@NotNull InputStream in){
