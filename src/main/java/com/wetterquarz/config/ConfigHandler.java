@@ -359,6 +359,12 @@ public class ConfigHandler {
         }
     }
 
+    /**
+     * Fetches the content of the file and parse it into a map.
+     *
+     * @param f The config file
+     * @return a map from the config. If the file does not exist or other errors appear this will return an empty map.
+     */
     private Map<String, Object> load(File f){
         try{
             return load(new FileInputStream(f));
@@ -367,6 +373,12 @@ public class ConfigHandler {
         }
     }
 
+    /**
+     * Fetches the content of the input stream and parse it into a map.
+     *
+     * @param in The input stream
+     * @return a map from the config. If the input stream cannot be parsed or other errors appear this will return an empty map.
+     */
     private Map<String, Object> load(InputStream in){
         Map<String, Object> map = new Yaml().load(in);
 
