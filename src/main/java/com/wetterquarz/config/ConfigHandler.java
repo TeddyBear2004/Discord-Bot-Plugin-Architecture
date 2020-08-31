@@ -20,6 +20,14 @@ public class ConfigHandler {
     @Nullable private final InputStream in;
     @NotNull private Map<String, Object> map;
 
+    public ConfigHandler(@NotNull File path) {
+    	this.file = path;
+    	this.in = null;
+    	
+    	this.map = new HashMap<>();
+    	reload();
+    }
+    
     /**
      * Create or initialise a configFile at the given location.
      *
