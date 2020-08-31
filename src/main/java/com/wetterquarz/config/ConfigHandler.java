@@ -17,46 +17,37 @@ public class ConfigHandler {
     @NotNull private static final Logger LOGGER = LogManager.getLogger(ConfigHandler.class.getName());
 
     @Nullable private final File file;
-    @Nullable private final InputStream in;
     @NotNull private Map<String, Object> map;
 
     /**
      * Create or initialise a configFile at the given location.
      *
-     * @param path Where the config file is or where it should be created
+     * @param file Where the config file is or where it should be created
      */
-    public ConfigHandler(@NotNull File path){
-        this.file = path;
-        this.in = null;
+    public ConfigHandler(@NotNull File file){
+        this.file = file;
 
-        this.map = new HashMap<>();
-        reload();
+        this.map = load(this.file);
     }
 
     /**
-     * Create or initialise a configFile at the given location.
+     * Create or initialise a configFile with the given name.
      *
      * @param configFileName The config file name
      */
     public ConfigHandler(@NotNull String configFileName){
-        this.file = new File("config/" + configFileName + ".yml");
-        this.in = null;
-
-        this.map = new HashMap<>();
-        reload();
+        this(new File("config/" + configFileName + ".yml"));
     }
 
     /**
-     * Creates a readOnly version of the ConfigHandler.
+     * Creates a read-only version of the ConfigHandler.
      *
      * @param in The input stream of the ConfigHandler.
      */
     public ConfigHandler(@NotNull InputStream in){
         this.file = null;
-        this.in = in;
 
-        this.map = new HashMap<>();
-        reload();
+        this.map = load(in);
     }
 
     /**
@@ -83,16 +74,7 @@ public class ConfigHandler {
         if(file == null)
             throw new UnsupportedOperationException("You cannot set values if this object is created with an input stream.");
 
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(this.file))){
-            Map<String, Object> data = new HashMap<>();
-
-            data.putAll(map);
-            data.putAll(objectMap);
-
-            new Yaml().dump(data, writer);
-        }catch(IOException e){
-            LOGGER.warn(e);
-        }
+        map.putAll(objectMap);
     }
 
     /**
@@ -377,28 +359,41 @@ public class ConfigHandler {
         }
     }
 
+    private Map<String, Object> load(File f){
+        try{
+            return load(new FileInputStream(f));
+        }catch(FileNotFoundException e){
+            return new LinkedHashMap<>();
+        }
+    }
+
+    private Map<String, Object> load(InputStream in){
+        Map<String, Object> map = new Yaml().load(in);
+
+        return map == null ? new LinkedHashMap<>() : map;
+    }
+
     /**
      * Reading the file and load it into the cache. If the file do not exist it will be created.
      */
     public void reload(){
-        if(file == null && in != null){
-            Map<String, Object> map = new Yaml().load(this.in);
-            this.map = map == null ? new LinkedHashMap<>() : map;
-            return;
-        }
-        if(in == null && file != null){
-            if(this.file.getParentFile() != null)
-                this.file.getParentFile().mkdirs();
+        if(this.file == null)
+            throw new UnsupportedOperationException("This config is read-only.");
 
-            try(BufferedReader reader = new BufferedReader(new FileReader(this.file))){
-                this.file.createNewFile();
+            this.map = load(this.file);
+    }
 
-                Map<String, Object> map = new Yaml().load(reader);
+    public void save(){
+        if(file == null)
+            throw new UnsupportedOperationException("This config is read-only.");
 
-                this.map = map == null ? new LinkedHashMap<>() : map;
-            }catch(IOException e){
-                LOGGER.warn(e);
-            }
+        if(file.getParentFile() != null)
+            file.getParentFile().mkdirs();
+
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
+            new Yaml().dump(map, writer);
+        }catch(IOException e){
+            LOGGER.warn("cannot create config file", e);
         }
     }
 }
