@@ -1,6 +1,6 @@
 package com.wetterquarz.command;
 
-import discord4j.core.event.EventDispatcher;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
@@ -9,10 +9,10 @@ import java.util.*;
 public class CommandManager {
     private final Map<String, Command> commandMap;
 
-    public CommandManager(EventDispatcher eventDispatcher) {
+    public CommandManager(GatewayDiscordClient discordClient) {
         this.commandMap = new TreeMap<>();
 
-        eventDispatcher.on(MessageCreateEvent.class).doOnNext(event -> {
+        discordClient.getEventDispatcher().on(MessageCreateEvent.class).doOnNext(event -> {
             Message message = event.getMessage();
             List<String> args = getArgs(message.getContent());
 
