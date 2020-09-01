@@ -19,10 +19,27 @@ import java.util.*;
  * @author teddy
  */
 public class ConfigHandler {
+    /**
+     * The folder where all configs should be saved in.
+     */
     @NotNull public static final String CONFIG_FOLDER = "config\\";
+    /**
+     * The suffix of the file. Should be either *.yml or *.yaml.
+     */
     @NotNull public static final String CONFIG_FILE_SUFFIX = ".yml";
+    /**
+     * A Logger of this class.
+     */
     @NotNull private static final Logger LOGGER = LogManager.getLogger(ConfigHandler.class.getName());
+    /**
+     * The file of the config. Can either be set with the name or directly be set.
+     * If this field is null the object is created with an input stream and the object is read-only.
+     */
     @Nullable private final File file;
+    /**
+     * This map contains all yaml elements of the file or those which are newly set.
+     * Can be synchronised by method .save();
+     */
     @NotNull private Map<String, Object> map;
 
     /**
