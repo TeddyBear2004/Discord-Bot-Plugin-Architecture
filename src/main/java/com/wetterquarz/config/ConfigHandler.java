@@ -19,7 +19,7 @@ import java.util.*;
  * @author teddy
  */
 public class ConfigHandler {
-    @NotNull public static final File CONFIG_FOLDER = new File("config/");
+    @NotNull public static final String CONFIG_FOLDER = "config\\";
     @NotNull public static final String CONFIG_FILE_SUFFIX = ".yml";
     @NotNull private static final Logger LOGGER = LogManager.getLogger(ConfigHandler.class.getName());
     @Nullable private final File file;
@@ -42,7 +42,7 @@ public class ConfigHandler {
      * @param configFileName The config file name
      */
     public ConfigHandler(@NotNull String configFileName){
-        this(new File(CONFIG_FOLDER.getPath() + configFileName + CONFIG_FILE_SUFFIX));
+        this(new File(CONFIG_FOLDER + configFileName + CONFIG_FILE_SUFFIX));
     }
 
     /**
