@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * You can handle your yaml based config file with this class.
+ * You can handle YAML yaml based config file with this class.
  * Create a object with an file/filename or with an input stream.
  * If this class is created with an input stream it is read-only else you can do everything.
  * This file will be created the first time it does not exist and you call save.
@@ -78,7 +78,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setObject(@NotNull String key, Object value){
         Map<String, Object> data = new HashMap<>(1);
@@ -91,7 +91,7 @@ public class ConfigHandler {
      * Set multiple entries at once into the config. If a key already exist it will be overridden.
      *
      * @param objectMap The map of all entries.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setObjects(@NotNull Map<String, Object> objectMap){
         if(file == null)
@@ -104,7 +104,7 @@ public class ConfigHandler {
      * Insert all entries of the given map. If a key is already set it will be ignored
      *
      * @param objectMap The map of the entries.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefaults(@NotNull Map<String, Object> objectMap){
         map.forEach((s, o) -> objectMap.remove(s));
@@ -117,7 +117,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NotNull String key, Object value){
         if(file == null)
@@ -131,7 +131,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NonNull String key, byte value){
         setDefault(key, Byte.valueOf(value));
@@ -142,7 +142,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NonNull String key, short value){
         setDefault(key, Short.valueOf(value));
@@ -153,7 +153,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NonNull String key, int value){
         setDefault(key, Integer.valueOf(value));
@@ -164,7 +164,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NonNull String key, long value){
         setDefault(key, Long.valueOf(value));
@@ -175,7 +175,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NonNull String key, float value){
         setDefault(key, Float.valueOf(value));
@@ -186,7 +186,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NonNull String key, double value){
         setDefault(key, Double.valueOf(value));
@@ -197,7 +197,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NonNull String key, char value){
         setDefault(key, Character.valueOf(value));
@@ -208,7 +208,7 @@ public class ConfigHandler {
      *
      * @param key   The key where the value should take place.
      * @param value The value which will be set.
-     * @throws UnsupportedOperationException If this object is created with an input stream.
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NonNull String key, boolean value){
         setDefault(key, Boolean.valueOf(value));
@@ -216,6 +216,7 @@ public class ConfigHandler {
 
     /**
      * Removes an element of the map.
+     *
      * @param key The key where the element should be removed.
      */
     public void remove(String key){
@@ -430,7 +431,7 @@ public class ConfigHandler {
     /**
      * Create the file if it not exist and save it into the file.
      *
-     * @throws UnsupportedOperationException if the config is read-only
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void save(){
         if(file == null)
