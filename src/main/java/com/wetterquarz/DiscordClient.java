@@ -38,9 +38,6 @@ public class DiscordClient {
     	config.setDefault("token", "set here the token!");
     	config.save();
 
-    	if(config.getString("token") == null)
-    		return;
-
     	discordClient = new DiscordClient(config.getString("token"));
     	
     	discordClient.onDisconnect.block();
