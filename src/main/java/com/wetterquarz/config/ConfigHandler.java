@@ -95,7 +95,7 @@ public class ConfigHandler {
      */
     public void setObjects(@NotNull Map<String, Object> objectMap){
         if(file == null)
-            throw new UnsupportedOperationException("You cannot set values if this object is created with an input stream.");
+            throw new UnsupportedOperationException("This config is read-only.");
 
         map.putAll(objectMap);
     }
@@ -121,7 +121,7 @@ public class ConfigHandler {
      */
     public void setDefault(@NotNull String key, Object value){
         if(file == null)
-            throw new UnsupportedOperationException("You cannot set values if this object is created with an input stream.");
+            throw new UnsupportedOperationException("This config is read-only.");
         if(get(key) == null)
             setObject(key, value);
     }
