@@ -214,6 +214,13 @@ public class ConfigHandler {
         setDefault(key, Boolean.valueOf(value));
     }
 
+    /**
+     * Removes an element of the map.
+     * @param key The key where the element should be removed.
+     */
+    public void remove(String key){
+        setDefault(key, null);
+    }
 
     /**
      * Return the object where the key is set as key or null if the key is not set
