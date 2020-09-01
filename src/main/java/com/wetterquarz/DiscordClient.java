@@ -36,6 +36,7 @@ public class DiscordClient {
     	ConfigHandler config = new ConfigHandler("config");
 
     	config.setDefault("token", "set here the token!");
+    	config.save();
 
     	if(config.getString("token") == null)
     		return;
