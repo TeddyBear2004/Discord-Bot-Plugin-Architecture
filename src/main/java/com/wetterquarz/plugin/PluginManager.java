@@ -38,13 +38,15 @@ public class PluginManager {
 			if (file.getName().endsWith(".jar")) {
 				try (JarFile jar = new JarFile(file)) {
 					PluginMetadata pluginMeta = loadJar(jar, file.toURI().toURL());
-					if(plugins.containsKey(pluginMeta.getName())) {
-						LOGGER.error(pluginMeta.getName() + " already exists.");
-					} else {
-						plugins.put(pluginMeta.getName(), pluginMeta);
-						pluginMeta.getPlugin().logger = LogManager.getLogger(pluginMeta.getName());
-						pluginMeta.getPlugin().config = new ConfigHandler(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
-						pluginMeta.getPlugin().onLoad();
+					if(pluginMeta != null) {
+						if(plugins.containsKey(pluginMeta.getName())) {
+							LOGGER.error(pluginMeta.getName() + " already exists.");
+						} else {
+							plugins.put(pluginMeta.getName(), pluginMeta);
+							pluginMeta.getPlugin().logger = LogManager.getLogger(pluginMeta.getName());
+							pluginMeta.getPlugin().config = new ConfigHandler(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
+							pluginMeta.getPlugin().onLoad();
+						}
 					}
 				} catch (IOException e) {
 					LOGGER.warn(e);
