@@ -30,6 +30,10 @@ public class DiscordClient {
 		return gatewayDiscordClient.getEventDispatcher();
 	}
 	
+	public PluginManager getPluginManager() {
+		return pluginManager;
+	}
+	
 	private static DiscordClient discordClient;
 
     public static void main(String[] args){

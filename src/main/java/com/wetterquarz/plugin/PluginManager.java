@@ -11,7 +11,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarFile;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 public class PluginManager {
