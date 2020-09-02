@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 public class PluginManager {
@@ -63,6 +64,11 @@ public class PluginManager {
 		String name = configHandler.getString("name");
 		String label = configHandler.getString("label");
 		String version = configHandler.getString("version");
+		
+		if(name.contains(" ")) {
+			LOGGER.error(jar.getName() + " Plugin names may not contain spaces.");
+			return null;
+		}
 
 		if (main == null || name == null || version == null) {
 			LOGGER.error(jar.getName() + "'s plugin.yml does not contain main, name or version entries.");
