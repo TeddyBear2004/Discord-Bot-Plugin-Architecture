@@ -19,6 +19,7 @@ public class Plugin {
 	}
 	
 	public void onLoad() {}
+	public void onGatewayReady() {}
 	public void onUnload() {}
 
 }
