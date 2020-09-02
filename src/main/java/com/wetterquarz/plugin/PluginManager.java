@@ -24,8 +24,6 @@ public class PluginManager {
 	@NotNull
 	private static final Logger LOGGER = LogManager.getLogger(PluginManager.class.getName());
 	@NotNull
-	private final File pluginDir = PLUGIN_FOLDER;
-	@NotNull
 	private Map<String, PluginMetadata> plugins = new HashMap<>();
 
 	public PluginManager() {
@@ -34,10 +32,8 @@ public class PluginManager {
 
 	public void reload() {
 		plugins = new HashMap<>();
-		if (pluginDir.mkdirs())
-			return;
 
-		for (File file : pluginDir.listFiles()) {
+		for (File file : PluginManager.PLUGIN_FOLDER.listFiles()) {
 			if (file.getName().endsWith(".jar")) {
 				try (JarFile jar = new JarFile(file)) {
 					PluginMetadata pluginMeta = loadJar(jar, file.toURI().toURL());
