@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * You can handle YAML yaml based config file with this class.
+ * You can handle your YAML based config file with this class.
  * Create a object with an file/filename or with an input stream.
  * If this class is created with an input stream it is read-only else you can do everything.
  * This file will be created the first time it does not exist and you call save.
@@ -420,6 +420,8 @@ public class ConfigHandler {
 
     /**
      * Reading the file and load it into the cache. If the file do not exist it will be created.
+     *
+     * @throws UnsupportedOperationException If the config is read-only.
      */
     public void reload(){
         if(this.file == null)
