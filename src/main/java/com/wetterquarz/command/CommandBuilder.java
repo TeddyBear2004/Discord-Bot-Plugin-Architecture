@@ -24,7 +24,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
      *
      * @param name              The name of the command
      * @param commandExecutable The object which will be started if the command passed through the {@link CommandManager}
-     * @exception IllegalArgumentException if the name contains a space
+     * @throws IllegalArgumentException if the name contains a space
      */
     public CommandBuilder(@NotNull String name, @Nullable CommandExecutable commandExecutable){
         super(name, commandExecutable);
@@ -50,12 +50,12 @@ public class CommandBuilder extends CommandSegmentBuilder {
     }
 
     /**
-     * Sets the prefix of the command.
+     * Sets the prefix of the command if prefix is null it will be set to the standard.
      *
-     * @param prefix the new prefix
+     * @param prefix the new prefix or null if it should be the normal.
      * @return the new {@link CommandBuilder} object
      */
-    public CommandBuilder withPrefix(String prefix){
+    public CommandBuilder withPrefix(@Nullable String prefix){
         this.prefix = prefix == null ? "!" : prefix;//todo get prefix from config
         return this;
     }
@@ -72,7 +72,11 @@ public class CommandBuilder extends CommandSegmentBuilder {
     }
 
     /**
+     * Register a new level of the command.
      *
+     * @param name              The name of the new command level
+     * @param commandExecutable The object which will be started if the command passed through the {@link CommandManager}
+     * @return the new {@link CommandBuilder} object
      * @throws IllegalArgumentException if the element has already been registered
      */
     public CommandBuilder addSubCommandLevel(String name, CommandExecutable commandExecutable){
@@ -81,7 +85,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
         CommandSegmentBuilder commandSegmentBuilder = this;
 
         for(int i = 0; i < args.length; i++){
-            if(i+ 1 == args.length){
+            if(i + 1 == args.length){
                 //Exactly one element remaining
 
                 if(commandSegmentBuilder.subCommandBuilders == null){
@@ -96,7 +100,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
 
                 commandSegmentBuilder.subCommandBuilders.add(new CommandSegmentBuilder(args[i], commandExecutable));
                 return this;
-            }else {
+            }else{
                 //more than one element remaining
 
                 if(commandSegmentBuilder.subCommandBuilders == null)
@@ -124,7 +128,8 @@ public class CommandBuilder extends CommandSegmentBuilder {
      *
      * @return The {@link Command} which was built.
      */
-    @NotNull public Command build(){
+    @NotNull
+    public Command build(){
         return new Command(name, commandExecutable, aliases, prefix, canBotSend, buildSegments());
     }
 }
