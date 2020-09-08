@@ -4,51 +4,71 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 public class CommandManager {
     private final Map<String, Command> commandMap;
 
-    public CommandManager(GatewayDiscordClient discordClient) {
+    public CommandManager(@NotNull GatewayDiscordClient discordClient){
         this.commandMap = new TreeMap<>();
 
         discordClient.getEventDispatcher().on(MessageCreateEvent.class).doOnNext(event -> {
             Message message = event.getMessage();
-            List<String> args = getArgs(message.getContent());
+            List<String> args = new LinkedList<>(Arrays.asList(event.getMessage().getContent().split(" ")));
+            List<String> usedAlias = new ArrayList<>();
 
             Command command = commandMap
                     .get(args.get(0));
 
-            if(command == null)return;
-            if (command.canBotSend() || !message.getAuthor().map(User::isBot).orElse(false)) {
+            if(command == null)
+                return;
+
+
+            if(command.canBotSend() || !message.getAuthor().map(User::isBot).orElse(false)){
 
                 CommandSegment segment = command;
 
-                for (int i = 1; segment.commandSegments != null; i++) {
-                    try {
+                for(int i = 1; segment.commandSegments != null; i++){
+                    try{
                         CommandSegment commandSegment = segment.commandSegments.get(args.get(i));
 
-                        if (commandSegment == null)
+                        if(commandSegment == null)
                             break;
 
+                        usedAlias.add(args.get(i));
+
                         segment = commandSegment;
-                    } catch (IndexOutOfBoundsException ignore) {
+                    }catch(IndexOutOfBoundsException ignore){
                         break;
                     }
                 }
 
-                segment.commandExecutable.execute(event);
+                args.removeAll(usedAlias);
+
+                String[] usedAliasArray = new String[usedAlias.size()];
+                usedAlias.toArray(usedAliasArray);
+
+                String[] argsArray = new String[args.size()];
+                args.toArray(argsArray);
+
+                CommandSegment finalSegment = segment;
+                event.getMessage().getChannel().subscribe(messageChannel -> {
+
+                    User user = event.getMember().orElse(null);
+
+                    if(user == null)
+                        return;
+
+                    finalSegment.commandExecutable.execute(usedAliasArray, argsArray, user, command, messageChannel, messageChannel.getClient()).subscribe();
+                });
             }
         }).onErrorContinue((t, obj) -> t.printStackTrace()).subscribe();
     }
 
-    public static List<String> getArgs(String string) {
-
-        return new LinkedList<>(Arrays.asList(string.split(" ")));
-    }
-
-    public void registerCommands(Command... commands) {
-        for (Command command : commands) {
+    public void registerCommands(Command... commands){
+        for(Command command : commands){
             String prefix = command.getPrefix();
             this.commandMap.put(prefix + command.getName(), command);
             command.getAliases().forEach(s -> this.commandMap.put(prefix + s.split(" ")[0], command));
