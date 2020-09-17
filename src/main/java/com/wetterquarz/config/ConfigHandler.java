@@ -268,7 +268,6 @@ public class ConfigHandler {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a integer.
      */
-    @SuppressWarnings("ConstantConditions")
     public int getInt(@NotNull String key){
         try{
             return (int)get(key);
@@ -284,7 +283,6 @@ public class ConfigHandler {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a boolean.
      */
-    @SuppressWarnings("ConstantConditions")
     public boolean getBoolean(@NotNull String key){
         try{
             return (boolean)get(key);
@@ -300,7 +298,6 @@ public class ConfigHandler {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a long.
      */
-    @SuppressWarnings("ConstantConditions")
     public long getLong(@NotNull String key){
         try{
             return (long)get(key);
@@ -316,7 +313,6 @@ public class ConfigHandler {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a double.
      */
-    @SuppressWarnings("ConstantConditions")
     public double getDouble(@NotNull String key){
         try{
             return (double)get(key);
@@ -332,7 +328,6 @@ public class ConfigHandler {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a character.
      */
-    @SuppressWarnings("ConstantConditions")
     public char getChar(@NotNull String key){
         try{
             return (char)get(key);
@@ -348,7 +343,6 @@ public class ConfigHandler {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a byte.
      */
-    @SuppressWarnings("ConstantConditions")
     public byte getByte(@NotNull String key){
         try{
             return (byte)get(key);
@@ -364,7 +358,6 @@ public class ConfigHandler {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a short.
      */
-    @SuppressWarnings("ConstantConditions")
     public short getShort(@NotNull String key){
         try{
             return (short)get(key);
@@ -380,7 +373,6 @@ public class ConfigHandler {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a float.
      */
-    @SuppressWarnings("ConstantConditions")
     public float getFloat(@NotNull String key){
         try{
             return (float)get(key);
