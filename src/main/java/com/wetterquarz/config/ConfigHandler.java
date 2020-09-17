@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
-import reactor.util.annotation.NonNull;
 
 import java.io.*;
 import java.util.*;
@@ -133,7 +132,7 @@ public class ConfigHandler {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NonNull String key, byte value){
+    public void setDefault(@NotNull String key, byte value){
         setDefault(key, Byte.valueOf(value));
     }
 
@@ -144,7 +143,7 @@ public class ConfigHandler {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NonNull String key, short value){
+    public void setDefault(@NotNull String key, short value){
         setDefault(key, Short.valueOf(value));
     }
 
@@ -155,7 +154,7 @@ public class ConfigHandler {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NonNull String key, int value){
+    public void setDefault(@NotNull String key, int value){
         setDefault(key, Integer.valueOf(value));
     }
 
@@ -166,7 +165,7 @@ public class ConfigHandler {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NonNull String key, long value){
+    public void setDefault(@NotNull String key, long value){
         setDefault(key, Long.valueOf(value));
     }
 
@@ -177,7 +176,7 @@ public class ConfigHandler {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NonNull String key, float value){
+    public void setDefault(@NotNull String key, float value){
         setDefault(key, Float.valueOf(value));
     }
 
@@ -188,7 +187,7 @@ public class ConfigHandler {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NonNull String key, double value){
+    public void setDefault(@NotNull String key, double value){
         setDefault(key, Double.valueOf(value));
     }
 
@@ -199,7 +198,7 @@ public class ConfigHandler {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NonNull String key, char value){
+    public void setDefault(@NotNull String key, char value){
         setDefault(key, Character.valueOf(value));
     }
 
@@ -210,7 +209,7 @@ public class ConfigHandler {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NonNull String key, boolean value){
+    public void setDefault(@NotNull String key, boolean value){
         setDefault(key, Boolean.valueOf(value));
     }
 
@@ -396,8 +395,8 @@ public class ConfigHandler {
      * @param f The config file
      * @return a map from the config. If the file does not exist or other errors appear this will return an empty map.
      */
-    @NonNull
-    private Map<String, Object> load(@NonNull File f){
+    @NotNull
+    private Map<String, Object> load(@NotNull File f){
         try{
             return load(new FileInputStream(f));
         }catch(FileNotFoundException e){
@@ -411,8 +410,8 @@ public class ConfigHandler {
      * @param in The input stream
      * @return a map from the config. If the input stream cannot be parsed or other errors appear this will return an empty map.
      */
-    @NonNull
-    private Map<String, Object> load(@NonNull InputStream in){
+    @NotNull
+    private Map<String, Object> load(@NotNull InputStream in){
         Map<String, Object> map = new Yaml().load(in);
 
         return map == null ? new LinkedHashMap<>() : map;
