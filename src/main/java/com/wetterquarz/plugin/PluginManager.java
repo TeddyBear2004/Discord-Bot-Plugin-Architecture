@@ -1,6 +1,6 @@
 package com.wetterquarz.plugin;
 
-import com.wetterquarz.config.ConfigHandler;
+import com.wetterquarz.config.Config;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ public class PluginManager {
 						} else {
 							plugins.put(pluginMeta.getName(), pluginMeta);
 							pluginMeta.getPlugin().logger = LogManager.getLogger(pluginMeta.getName());
-							pluginMeta.getPlugin().config = new ConfigHandler(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
+							pluginMeta.getPlugin().config = new Config(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
 							pluginMeta.getPlugin().onLoad();
 						}
 					}
@@ -60,11 +60,11 @@ public class PluginManager {
 			LOGGER.error(jar.getName() + " does not contain a plugin.yml");
 			return null;
 		}
-		ConfigHandler configHandler = new ConfigHandler(jar.getInputStream(pluginConfig));
-		String main = configHandler.getString("main");
-		String name = configHandler.getString("name");
-		String label = configHandler.getString("label");
-		String version = configHandler.getString("version");
+		Config config = new Config(jar.getInputStream(pluginConfig));
+		String main = config.getString("main");
+		String name = config.getString("name");
+		String label = config.getString("label");
+		String version = config.getString("version");
 		
 		if(name.contains(" ")) {
 			LOGGER.error(jar.getName() + " Plugin names may not contain spaces.");

@@ -1,6 +1,6 @@
 package com.wetterquarz;
 
-import com.wetterquarz.config.ConfigHandler;
+import com.wetterquarz.config.Config;
 import com.wetterquarz.plugin.PluginManager;
 
 import discord4j.core.GatewayDiscordClient;
@@ -37,7 +37,7 @@ public class DiscordClient {
 	private static DiscordClient discordClient;
 
     public static void main(String[] args){
-    	ConfigHandler config = new ConfigHandler("config");
+    	Config config = new Config("config");
 
     	config.setDefault("token", "set here the token!");
     	config.save();

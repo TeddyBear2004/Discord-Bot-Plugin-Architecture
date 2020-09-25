@@ -17,7 +17,7 @@ import java.util.*;
  *
  * @author teddy
  */
-public class ConfigHandler {
+public class Config {
     /**
      * The folder where all configs should be saved in.
      */
@@ -29,7 +29,7 @@ public class ConfigHandler {
     /**
      * A Logger of this class.
      */
-    @NotNull private static final Logger LOGGER = LogManager.getLogger(ConfigHandler.class.getName());
+    @NotNull private static final Logger LOGGER = LogManager.getLogger(Config.class.getName());
     /**
      * The file of the config. Can either be set with the name or directly be set.
      * If this field is null the object is created with an input stream and the object is read-only.
@@ -46,7 +46,7 @@ public class ConfigHandler {
      *
      * @param file Where the config file is or where it should be created
      */
-    public ConfigHandler(@NotNull File file){
+    public Config(@NotNull File file){
         this.file = file;
 
         this.map = load(this.file);
@@ -57,7 +57,7 @@ public class ConfigHandler {
      *
      * @param configFileName The config file name
      */
-    public ConfigHandler(@NotNull String configFileName){
+    public Config(@NotNull String configFileName){
         this(new File(CONFIG_FOLDER + configFileName + CONFIG_FILE_SUFFIX));
     }
 
@@ -66,7 +66,7 @@ public class ConfigHandler {
      *
      * @param in The input stream of the ConfigHandler.
      */
-    public ConfigHandler(@NotNull InputStream in){
+    public Config(@NotNull InputStream in){
         this.file = null;
 
         this.map = load(in);
