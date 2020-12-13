@@ -8,7 +8,6 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import io.r2dbc.spi.ConnectionFactoryOptions;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
@@ -24,9 +23,8 @@ public class DiscordClient {
 
     private DiscordClient(Config config){
         String token = config.getString("token");
-        System.out.println(token);
 
-        this.gatewayDiscordClient = DiscordClientBuilder.create("gw9EkM6hdh5j6yr6MSsJrh9WOKRZwJF8").build().login().block();
+        this.gatewayDiscordClient = DiscordClientBuilder.create(token).build().login().block();
 
         this.pluginManager = new PluginManager();
 
