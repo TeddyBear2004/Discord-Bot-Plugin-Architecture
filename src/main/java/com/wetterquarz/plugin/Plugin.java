@@ -2,7 +2,7 @@ package com.wetterquarz.plugin;
 
 import org.apache.log4j.Logger;
 
-import com.wetterquarz.config.Config;
+import com.wetterquarz.config.FileConfig;
 
 public class Plugin {
 
@@ -12,8 +12,8 @@ public class Plugin {
 		return logger;
 	}
 	
-	Config config;
-	public Config getConfig() {
+	FileConfig config;
+	public FileConfig getConfig() {
 		if(config == null) throw new NullPointerException();
 		return config;
 	}

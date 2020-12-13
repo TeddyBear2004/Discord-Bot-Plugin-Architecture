@@ -1,6 +1,6 @@
 package com.wetterquarz.plugin;
 
-import com.wetterquarz.config.Config;
+import com.wetterquarz.config.FileConfig;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +43,7 @@ public class PluginManager {
 						} else {
 							plugins.put(pluginMeta.getName(), pluginMeta);
 							pluginMeta.getPlugin().logger = LogManager.getLogger(pluginMeta.getName());
-							pluginMeta.getPlugin().config = new Config(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
+							pluginMeta.getPlugin().config = new FileConfig(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
 							pluginMeta.getPlugin().onLoad();
 						}
 					}
@@ -60,7 +60,7 @@ public class PluginManager {
 			LOGGER.error(jar.getName() + " does not contain a plugin.yml");
 			return null;
 		}
-		Config config = new Config(jar.getInputStream(pluginConfig));
+		FileConfig config = new FileConfig(jar.getInputStream(pluginConfig));
 		String main = config.getString("main");
 		String name = config.getString("name");
 		String label = config.getString("label");
