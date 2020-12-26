@@ -1,5 +1,6 @@
 package com.wetterquarz;
 
+import com.wetterquarz.command.CommandManager;
 import com.wetterquarz.config.Config;
 import com.wetterquarz.config.FileConfig;
 import com.wetterquarz.database.DatabaseManager;
@@ -8,23 +9,47 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import io.r2dbc.spi.ConnectionFactoryOptions;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.InputMismatchException;
+import java.util.Objects;
 
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 public class DiscordClient {
+    @NotNull private static final DiscordClient discordClient;
 
-    private static DiscordClient discordClient;
-    private final Object commandManager = null;
-    private final PluginManager pluginManager;
-    private final DatabaseManager databaseManager;
-    private final GatewayDiscordClient gatewayDiscordClient;
+    static{
+        FileConfig config = new FileConfig("config");
+
+        config.setDefault("token", "set here the token!");
+        config.setDefault("database.host", "set db host here");
+        config.setDefault("database.user", "set db user here");
+        config.setDefault("database.port", "set db port here");
+        config.setDefault("database.password", "set db password here");
+        config.setDefault("database.database", "set db database here");
+        config.save();
+
+        discordClient = new DiscordClient(config);
+
+        discordClient.gatewayDiscordClient.onDisconnect().block();
+    }
+
+    @NotNull private final CommandManager commandManager;
+    @NotNull private final PluginManager pluginManager;
+    @NotNull private final DatabaseManager databaseManager;
+    @NotNull private final GatewayDiscordClient gatewayDiscordClient;
 
     private DiscordClient(Config config){
-        String token = config.getString("token");
+        GatewayDiscordClient gatewayDiscordClient = DiscordClientBuilder.create(config.getString("token")).build().login().block();
 
-        this.gatewayDiscordClient = DiscordClientBuilder.create(token).build().login().block();
+        if(Objects.isNull(gatewayDiscordClient))
+            throw new InputMismatchException("Cannot build the gateway discord client");
+
+        this.gatewayDiscordClient = gatewayDiscordClient;
+
+        this.commandManager = new CommandManager(this.gatewayDiscordClient);
 
         this.pluginManager = new PluginManager();
 
@@ -41,23 +66,7 @@ public class DiscordClient {
         this.databaseManager = new DatabaseManager(options);
     }
 
-    public static void main(String[] args){
-        FileConfig config = new FileConfig("config");
-
-        config.setDefault("token", "set here the token!");
-        config.setDefault("database.host", "set db host here");
-        config.setDefault("database.user", "set db user here");
-        config.setDefault("database.port", "set db port here");
-        config.setDefault("database.password", "set db password here");
-        config.setDefault("database.database", "set db database here");
-        config.save();
-
-        discordClient = new DiscordClient(config);
-
-        discordClient.gatewayDiscordClient.onDisconnect().block();
-    }
-
-    public static DiscordClient getDiscordClient(){
+    public static @NotNull DiscordClient getDiscordClient(){
         return discordClient;
     }
 
@@ -65,11 +74,15 @@ public class DiscordClient {
         return gatewayDiscordClient.getEventDispatcher();
     }
 
-    public PluginManager getPluginManager(){
+    public @NotNull PluginManager getPluginManager(){
         return pluginManager;
     }
 
-	public DatabaseManager getDatabaseManager(){
-		return databaseManager;
-	}
+    public @NotNull DatabaseManager getDatabaseManager(){
+        return databaseManager;
+    }
+
+    public @NotNull CommandManager getCommandManager(){
+        return commandManager;
+    }
 }
