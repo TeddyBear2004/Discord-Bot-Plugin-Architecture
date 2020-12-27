@@ -267,6 +267,19 @@ public class FileConfig implements Config {
         return (List<?>)get(key);
     }
 
+
+    /**
+     * Return the map where the key is set or null if the key is not set or the value is no list.
+     *
+     * @param key The key of the value
+     * @return null if the key is not set or the set value
+     * @throws ClassCastException if the value is not List.
+     */
+    @Nullable
+    public Map<?, ?> getMap(@NotNull String key){
+        return (Map<?, ?>)get(key);
+    }
+
     /**
      * Return the integer where the key is set.
      *
@@ -410,7 +423,7 @@ public class FileConfig implements Config {
      */
     @NotNull
     private Map<String, Object> load(@NotNull InputStream in){
-        Map<String, Object> map = new Yaml().load(in);
+        Map<String, Object> map = getYaml().load(in);
 
         return map == null ? new LinkedHashMap<>() : map;
     }

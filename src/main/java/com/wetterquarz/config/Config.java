@@ -148,6 +148,15 @@ public interface Config {
     List<?> getList(@NotNull String key);
 
     /**
+     * Return the map where the key is set or null if the key is not set or the value is no list.
+     *
+     * @param key The key of the value
+     * @return null if the key is not set or the set value
+     * @throws ClassCastException if the value is not List.
+     */
+    Map<?, ?> getMap(@NotNull String key);
+
+    /**
      * Return the integer where the key is set.
      *
      * @param key The key of the value
