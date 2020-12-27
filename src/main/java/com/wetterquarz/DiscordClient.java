@@ -1,5 +1,6 @@
 package com.wetterquarz;
 
+import com.wetterquarz.command.CommandBuilder;
 import com.wetterquarz.command.CommandManager;
 import com.wetterquarz.config.Config;
 import com.wetterquarz.config.FileConfig;
@@ -10,9 +11,12 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.InputMismatchException;
+import java.util.Map;
 import java.util.Objects;
 
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
@@ -24,22 +28,34 @@ public class DiscordClient {
         FileConfig config = new FileConfig("config");
 
         config.setDefault("token", "set here the token!");
-        config.setDefault("database.host", "set db host here");
-        config.setDefault("database.user", "set db user here");
-        config.setDefault("database.port", "set db port here");
-        config.setDefault("database.password", "set db password here");
-        config.setDefault("database.database", "set db database here");
+        Map<String, Object> databaseOption = new HashMap<>();
+        databaseOption.put("useDatabase", true);
+        databaseOption.put("host", "set db host here");
+        databaseOption.put("user", "set db user here");
+        databaseOption.put("port", "set db port here");
+        databaseOption.put("password", "set db password here");
+        databaseOption.put("database", "set db database here");
+        config.setDefault("database", databaseOption);
         config.save();
 
         discordClient = new DiscordClient(config);
+    }
+
+    public static void main(String[] args){
+        DiscordClient discordClient = getDiscordClient();
+
+        discordClient.getCommandManager().registerCommands(
+                new CommandBuilder("pong",
+                        (usedAlias, args1, executor, rootCommand, channel, discordClient1) -> channel.createMessage("Ping!"))
+                        .build());
 
         discordClient.gatewayDiscordClient.onDisconnect().block();
     }
 
-    @NotNull private final CommandManager commandManager;
-    @NotNull private final PluginManager pluginManager;
-    @NotNull private final DatabaseManager databaseManager;
-    @NotNull private final GatewayDiscordClient gatewayDiscordClient;
+    private final @NotNull CommandManager commandManager;
+    private final @NotNull PluginManager pluginManager;
+    private final @Nullable DatabaseManager databaseManager;
+    private final @NotNull GatewayDiscordClient gatewayDiscordClient;
 
     private DiscordClient(Config config){
         GatewayDiscordClient gatewayDiscordClient = DiscordClientBuilder.create(config.getString("token")).build().login().block();
@@ -53,24 +69,34 @@ public class DiscordClient {
 
         this.pluginManager = new PluginManager();
 
-        ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
-                .option(DRIVER, "mysql")
-                .option(HOST, config.getString("database.host"))
-                .option(USER, config.getString("database.user"))
-                .option(PORT, config.getInt("database.port"))
-                .option(PASSWORD, config.getString("database.password"))
-                .option(DATABASE, config.getString("database.database"))
-                .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
-                .build();
+        Map<String, String> databaseOption = (Map<String, String>)config.getMap("database");
 
-        this.databaseManager = new DatabaseManager(options);
+        if(Objects.isNull(databaseOption))
+            throw new NullPointerException("Could not find any database connection strings.");
+
+        if(Boolean.parseBoolean(databaseOption.get("useDatabase"))){
+
+            ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
+                    .option(DRIVER, "mysql")
+                    .option(HOST, databaseOption.get("host"))
+                    .option(USER, databaseOption.get("user"))
+                    .option(PORT, Integer.parseInt(databaseOption.get("port")))
+                    .option(PASSWORD, databaseOption.get("password"))
+                    .option(DATABASE, databaseOption.get("database"))
+                    .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
+                    .build();
+
+            this.databaseManager = new DatabaseManager(options);
+        }else{
+            this.databaseManager = null;
+        }
     }
 
     public static @NotNull DiscordClient getDiscordClient(){
         return discordClient;
     }
 
-    public EventDispatcher getEventDispatcher(){
+    public @NotNull EventDispatcher getEventDispatcher(){
         return gatewayDiscordClient.getEventDispatcher();
     }
 
@@ -78,7 +104,7 @@ public class DiscordClient {
         return pluginManager;
     }
 
-    public @NotNull DatabaseManager getDatabaseManager(){
+    public @Nullable DatabaseManager getDatabaseManager(){
         return databaseManager;
     }
 
