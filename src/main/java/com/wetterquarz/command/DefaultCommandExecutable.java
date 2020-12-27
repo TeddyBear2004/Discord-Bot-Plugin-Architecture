@@ -16,7 +16,7 @@ public class DefaultCommandExecutable implements CommandExecutable {
     }
 
     @Override
-    public Mono<Message> execute(@NotNull String[] usedAlias, @NotNull String[] args, @NotNull User executor, @Nullable Command rootCommand, @NotNull MessageChannel channel, @NotNull GatewayDiscordClient discordClient){
+    public Mono<Message> execute(@NotNull String[] usedAlias, Object[] args, @NotNull User executor, @Nullable Command rootCommand, @NotNull MessageChannel channel, @NotNull GatewayDiscordClient discordClient){
         StringBuilder builder;
 
         if(commandSegment.getCommandSegments() != null && commandSegment.getCommandSegments().size() != 0){

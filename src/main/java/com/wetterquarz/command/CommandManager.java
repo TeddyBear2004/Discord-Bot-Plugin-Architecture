@@ -48,7 +48,7 @@ public class CommandManager {
                 String[] usedAliasArray = new String[usedAlias.size()];
                 usedAlias.toArray(usedAliasArray);
 
-                String[] argsArray = (String[])args.subList(usedAlias.size(), args.size()).toArray();
+                Object[] argsArray = args.subList(usedAlias.size(), args.size()).toArray();
 
                 CommandSegment finalSegment = segment;
                 message.getChannel().subscribe(messageChannel -> {
