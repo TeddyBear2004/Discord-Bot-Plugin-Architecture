@@ -16,7 +16,7 @@ public class CommandManager {
 
         discordClient.getEventDispatcher().on(MessageCreateEvent.class).doOnNext(event -> {
             Message message = event.getMessage();
-            List<String> args = new LinkedList<>(Arrays.asList(event.getMessage().getContent().split(" ")));
+            List<String> args = new LinkedList<>(Arrays.asList(message.getContent().split(" ")));
             List<String> usedAlias = new ArrayList<>();
 
             Command command = commandMap
@@ -51,7 +51,7 @@ public class CommandManager {
                 String[] argsArray = (String[])args.subList(usedAlias.size(), args.size()).toArray();
 
                 CommandSegment finalSegment = segment;
-                event.getMessage().getChannel().subscribe(messageChannel -> {
+                message.getChannel().subscribe(messageChannel -> {
 
                     User user = event.getMember().orElse(null);
 
