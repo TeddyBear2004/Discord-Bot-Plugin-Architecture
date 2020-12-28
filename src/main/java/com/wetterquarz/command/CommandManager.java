@@ -65,10 +65,13 @@ public class CommandManager {
     }
 
     public void registerCommands(Command... commands){
-        for(Command command : commands){
-            String prefix = command.getPrefix();
-            this.commandMap.put(prefix + command.getName(), command);
-            command.getAliases().forEach(s -> this.commandMap.put(prefix + s.split(" ")[0], command));
-        }
+        for(Command command : commands)
+            registerCommand(command);
+    }
+
+    public void registerCommand(Command command){
+        String prefix = command.getPrefix();
+        this.commandMap.put(prefix + command.getName(), command);
+        command.getAliases().forEach(s -> this.commandMap.put(prefix + s.split(" ")[0], command));
     }
 }
