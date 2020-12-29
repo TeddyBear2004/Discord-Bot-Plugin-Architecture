@@ -1,6 +1,5 @@
 package com.wetterquarz.command;
 
-import com.wetterquarz.util.Pair;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
@@ -70,5 +69,32 @@ public class CommandManager {
         String prefix = command.getPrefix();
         this.commandMap.put(prefix + command.getName(), command);
         command.getAliases().forEach(s -> this.commandMap.put(prefix + s.split(" ")[0], command));
+    }
+
+    private static class Pair<A, B>{
+        private final A a;
+        private final B b;
+
+        public Pair(A a, B b){
+
+            this.a = a;
+            this.b = b;
+        }
+
+        public A getA(){
+            return a;
+        }
+
+        public B getB(){
+            return b;
+        }
+
+        @Override
+        public String toString(){
+            return "Pair{" +
+                    "a=" + a +
+                    ", b=" + b +
+                    '}';
+        }
     }
 }
