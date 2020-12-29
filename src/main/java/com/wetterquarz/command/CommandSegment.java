@@ -1,19 +1,19 @@
 package com.wetterquarz.command;
 
-import com.google.common.collect.ImmutableMap;
-import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+
+import com.google.common.collect.ImmutableMap;
+
 public class CommandSegment {
-    @NotNull final String name;
     @NotNull final CommandExecutable commandExecutable;
     @Nullable final Map<String, CommandSegment> commandSegments;
 
-    public CommandSegment(@NotNull String name, @Nullable Map<String, CommandSegment> commandSegments, @Nullable CommandExecutable commandExecutable){
-        this.name = name;
+    public CommandSegment(@Nullable Map<String, CommandSegment> commandSegments, @Nullable CommandExecutable commandExecutable){
 
         if((commandSegments == null || commandSegments.size() == 0) && commandExecutable == null)
             throw new UnsupportedOperationException("Empty command segment.");
@@ -40,9 +40,5 @@ public class CommandSegment {
 
     public @NotNull CommandExecutable getExecutableCommand(){
         return commandExecutable;
-    }
-
-    public @NotNull String getName(){
-        return name;
     }
 }
