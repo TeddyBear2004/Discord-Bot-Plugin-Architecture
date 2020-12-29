@@ -37,7 +37,7 @@ public class CommandSegmentBuilder {
 
     @Nonnull
     protected CommandSegment build(){
-        return new CommandSegment(name.toLowerCase(), buildSegments(), commandExecutable);
+        return new CommandSegment(buildSegments(), commandExecutable);
     }
 
     List<CommandSegmentBuilder> subCommandBuilders;
