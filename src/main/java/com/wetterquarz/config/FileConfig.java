@@ -52,9 +52,9 @@ public class FileConfig implements Config {
     public FileConfig(@NotNull File file){
         this.file = file;
 
-        this.map = load(this.file);
-
         this.yaml = getYaml();
+
+        this.map = load(this.file);
     }
 
     /**
@@ -74,9 +74,9 @@ public class FileConfig implements Config {
     public FileConfig(@NotNull InputStream in){
         this.file = null;
 
-        this.map = load(in);
-
         this.yaml = getYaml();
+
+        this.map = load(in);
     }
 
     protected FileConfig(){
