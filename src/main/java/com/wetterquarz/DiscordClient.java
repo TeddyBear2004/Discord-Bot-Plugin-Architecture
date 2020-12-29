@@ -45,8 +45,11 @@ public class DiscordClient {
     private final @NotNull PluginManager pluginManager;
     private final @Nullable DatabaseManager databaseManager;
     private final @NotNull GatewayDiscordClient gatewayDiscordClient;
+    private final @NotNull Config config;
 
     private DiscordClient(Config config){
+        this.config = config;
+
         GatewayDiscordClient gatewayDiscordClient = DiscordClientBuilder.create(config.getString("token")).build().login().block();
 
         if(Objects.isNull(gatewayDiscordClient))
@@ -108,5 +111,9 @@ public class DiscordClient {
 
     public @NotNull CommandManager getCommandManager(){
         return commandManager;
+    }
+
+    public @NotNull Config getConfig(){
+        return config;
     }
 }

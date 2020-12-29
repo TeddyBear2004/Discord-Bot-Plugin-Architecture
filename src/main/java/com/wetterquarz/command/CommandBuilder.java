@@ -1,5 +1,6 @@
 package com.wetterquarz.command;
 
+import com.wetterquarz.DiscordClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +34,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
             throw new IllegalArgumentException("You may not use spaces within the name.");
 
         this.aliases = new ArrayList<>();
-        this.prefix = "!";//todo get prefix from config
+        this.prefix = DiscordClient.getDiscordClient().getConfig().getString("prefix");
 
         this.canBotSend = false;
     }
