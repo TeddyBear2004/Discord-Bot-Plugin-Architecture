@@ -14,9 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.InputMismatchException;
-import java.util.Map;
 import java.util.Objects;
 
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
@@ -26,16 +24,21 @@ public class DiscordClient {
 
     static{
         FileConfig config = new FileConfig("config");
+        FileConfig.SubFileConfig databaseOption = config.getSubMap("database");
+
+        databaseOption.setDefault("host", "set db host here");
+        databaseOption.setDefault("user", "set db user here");
+        databaseOption.setDefault("port", 3306);
+        databaseOption.setDefault("password", "set db password here");
+        databaseOption.setDefault("database", "set db database here");
+        databaseOption.save();
 
         config.setDefault("token", "set here the token!");
-        Map<String, Object> databaseOption = new HashMap<>();
-        databaseOption.put("host", "set db host here");
-        databaseOption.put("user", "set db user here");
-        databaseOption.put("port", "set db port here");
-        databaseOption.put("password", "set db password here");
-        databaseOption.put("database", "set db database here");
         config.setDefault("database", databaseOption);
 
+        config.save();
+
+        config.setDefault("t.h","o");
         config.save();
 
         discordClient = new DiscordClient(config);
@@ -52,8 +55,6 @@ public class DiscordClient {
 
         GatewayDiscordClient gatewayDiscordClient = DiscordClientBuilder.create(config.getString("token")).build().login().block();
 
-        System.out.println(config.get("database.host"));
-
         if(Objects.isNull(gatewayDiscordClient))
             throw new InputMismatchException("Cannot build the gateway discord client");
 
@@ -63,19 +64,18 @@ public class DiscordClient {
 
         this.pluginManager = new PluginManager();
 
-        Map<String, Object> databaseOption = config.getSubMap("database");
+        Config.SubConfig databaseOption = config.getSubMap("database");
 
         if(Objects.isNull(databaseOption))
             throw new NullPointerException("Could not find any database connection strings.");
 
-
         ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
                 .option(DRIVER, "mysql")
-                .option(HOST, databaseOption.get("host").toString())
-                .option(USER, databaseOption.get("user").toString())
-                .option(PORT, (int)databaseOption.get("port"))
-                .option(PASSWORD, databaseOption.get("password").toString())
-                .option(DATABASE, databaseOption.get("database").toString())
+                .option(HOST, databaseOption.getString("host"))
+                .option(USER, databaseOption.getString("user"))
+                .option(PORT, databaseOption.getInt("port"))
+                .option(PASSWORD, databaseOption.getString("password"))
+                .option(DATABASE, databaseOption.getString("database"))
                 .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
                 .build();
 
