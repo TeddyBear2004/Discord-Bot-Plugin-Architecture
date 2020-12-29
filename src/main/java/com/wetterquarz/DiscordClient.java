@@ -29,13 +29,13 @@ public class DiscordClient {
 
         config.setDefault("token", "set here the token!");
         Map<String, Object> databaseOption = new HashMap<>();
-        databaseOption.put("useDatabase", true);
         databaseOption.put("host", "set db host here");
         databaseOption.put("user", "set db user here");
         databaseOption.put("port", "set db port here");
         databaseOption.put("password", "set db password here");
         databaseOption.put("database", "set db database here");
         config.setDefault("database", databaseOption);
+
         config.save();
 
         discordClient = new DiscordClient(config);
@@ -52,6 +52,8 @@ public class DiscordClient {
 
         GatewayDiscordClient gatewayDiscordClient = DiscordClientBuilder.create(config.getString("token")).build().login().block();
 
+        System.out.println(config.get("database.host"));
+
         if(Objects.isNull(gatewayDiscordClient))
             throw new InputMismatchException("Cannot build the gateway discord client");
 
@@ -61,20 +63,20 @@ public class DiscordClient {
 
         this.pluginManager = new PluginManager();
 
-        Map<String, String> databaseOption = (Map<String, String>)config.getMap("database");
+        Map<String, Object> databaseOption = config.getSubMap("database");
 
         if(Objects.isNull(databaseOption))
             throw new NullPointerException("Could not find any database connection strings.");
 
-        if(Boolean.parseBoolean(databaseOption.get("useDatabase"))){
+        if(Boolean.parseBoolean(databaseOption.get("useDatabase").toString())){
 
             ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
                     .option(DRIVER, "mysql")
-                    .option(HOST, databaseOption.get("host"))
-                    .option(USER, databaseOption.get("user"))
-                    .option(PORT, Integer.parseInt(databaseOption.get("port")))
-                    .option(PASSWORD, databaseOption.get("password"))
-                    .option(DATABASE, databaseOption.get("database"))
+                    .option(HOST, databaseOption.get("host").toString())
+                    .option(USER, databaseOption.get("user").toString())
+                    .option(PORT, (int)databaseOption.get("port"))
+                    .option(PASSWORD, databaseOption.get("password").toString())
+                    .option(DATABASE, databaseOption.get("database").toString())
                     .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
                     .build();
 

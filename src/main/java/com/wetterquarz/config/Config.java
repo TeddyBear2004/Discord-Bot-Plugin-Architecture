@@ -145,7 +145,7 @@ public interface Config {
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
      */
-    List<?> getList(@NotNull String key);
+    List<Object> getList(@NotNull String key);
 
     /**
      * Return the map where the key is set or null if the key is not set or the value is no list.
@@ -154,7 +154,7 @@ public interface Config {
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
      */
-    Map<?, ?> getMap(@NotNull String key);
+    Map<String, Object> getSubMap(@NotNull String key);
 
     /**
      * Return the integer where the key is set.

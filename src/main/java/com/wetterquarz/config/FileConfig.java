@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.*;
 import java.util.*;
@@ -42,6 +43,7 @@ public class FileConfig implements Config {
      */
     @NotNull private Map<String, Object> map;
 
+    @NotNull private final Yaml yaml;
     /**
      * Create or initialise a configFile at the given location.
      *
@@ -51,6 +53,8 @@ public class FileConfig implements Config {
         this.file = file;
 
         this.map = load(this.file);
+
+        this.yaml = getYaml();
     }
 
     /**
@@ -71,11 +75,14 @@ public class FileConfig implements Config {
         this.file = null;
 
         this.map = load(in);
+
+        this.yaml = getYaml();
     }
 
     protected FileConfig(){
         this.file = null;
         this.map = new HashMap<>();
+        this.yaml = getYaml();
     }
 
     /**
@@ -86,10 +93,10 @@ public class FileConfig implements Config {
      * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setObject(@NotNull String key, Object value){
-        Map<String, Object> data = new HashMap<>(1);
-        data.put(key, value);
+        if(file == null)
+            throw new UnsupportedOperationException("This config is read-only.");
 
-        setObjects(data);
+        map.put(key, value);
     }
 
     /**
@@ -225,7 +232,7 @@ public class FileConfig implements Config {
      * @param key The key where the element should be removed.
      */
     public void remove(@NotNull String key){
-        setDefault(key, null);
+        map.remove(key);
     }
 
     /**
@@ -252,7 +259,7 @@ public class FileConfig implements Config {
         if(value == null)
             throw new NoSuchElementException();
 
-        return (String)get(key);
+        return value.toString();
     }
 
     /**
@@ -263,21 +270,21 @@ public class FileConfig implements Config {
      * @throws ClassCastException if the value is not List.
      */
     @Nullable
-    public List<?> getList(@NotNull String key){
-        return (List<?>)get(key);
+    public List<Object> getList(@NotNull String key){
+        return (List<Object>)get(key);
     }
 
 
     /**
-     * Return the map where the key is set or null if the key is not set or the value is no list.
+     * Return the map where the key is set or null if the key is not set or the value is no map.
      *
      * @param key The key of the value
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
      */
     @Nullable
-    public Map<?, ?> getMap(@NotNull String key){
-        return (Map<?, ?>)get(key);
+    public Map<String, Object> getSubMap(@NotNull String key){
+        return (Map<String, Object>)get(key);
     }
 
     /**
@@ -423,7 +430,7 @@ public class FileConfig implements Config {
      */
     @NotNull
     private Map<String, Object> load(@NotNull InputStream in){
-        Map<String, Object> map = getYaml().load(in);
+        Map<String, Object> map = this.yaml.load(in);
 
         return map == null ? new LinkedHashMap<>() : map;
     }
@@ -453,9 +460,11 @@ public class FileConfig implements Config {
             file.getParentFile().mkdirs();
 
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
-            getYaml().dump(map, writer);
+            this.yaml.dump(map, writer);
         }catch(IOException e){
             LOGGER.warn("cannot create config file", e);
+        }catch(YAMLException e){
+            LOGGER.warn("cannot dump into config file", e);
         }
     }
 
