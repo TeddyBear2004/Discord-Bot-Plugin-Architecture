@@ -274,7 +274,7 @@ public class FileConfig implements Config {
                 Object o = cache.get(s);
 
                 if(!(o instanceof Map)){
-                    cache.remove(o);
+                    cache.remove(s);
                     break;
                 }
 
@@ -339,7 +339,7 @@ public class FileConfig implements Config {
         Object o = get(key);
 
         if(o instanceof List){
-            List list = (List)o;
+            List<?> list = (List<?>)o;
 
             if((list).size() != 0)
                 if(list.size() == list.stream().filter(o1 -> o1 instanceof Map).count()){
@@ -374,7 +374,11 @@ public class FileConfig implements Config {
      */
     public int getInt(@NotNull String key){
         try{
-            return (int)get(key);
+            Object o = get(key);
+            if(o != null)
+                return (int)o;
+
+            throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
@@ -389,7 +393,10 @@ public class FileConfig implements Config {
      */
     public boolean getBoolean(@NotNull String key){
         try{
-            return (boolean)get(key);
+            Object o = get(key);
+            if(o != null)
+                return (boolean)o;
+            throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
@@ -404,7 +411,10 @@ public class FileConfig implements Config {
      */
     public long getLong(@NotNull String key){
         try{
-            return (long)get(key);
+            Object o = get(key);
+            if(o != null)
+                return (long)o;
+            throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
@@ -419,7 +429,10 @@ public class FileConfig implements Config {
      */
     public double getDouble(@NotNull String key){
         try{
-            return (double)get(key);
+            Object o = get(key);
+            if(o != null)
+                return (double)o;
+            throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
@@ -434,7 +447,10 @@ public class FileConfig implements Config {
      */
     public char getChar(@NotNull String key){
         try{
-            return (char)get(key);
+            Object o = get(key);
+            if(o != null)
+                return (char)o;
+            throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
@@ -449,7 +465,10 @@ public class FileConfig implements Config {
      */
     public byte getByte(@NotNull String key){
         try{
-            return (byte)get(key);
+            Object o = get(key);
+            if(o != null)
+                return (byte)o;
+            throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
@@ -464,7 +483,10 @@ public class FileConfig implements Config {
      */
     public short getShort(@NotNull String key){
         try{
-            return (short)get(key);
+            Object o = get(key);
+            if(o != null)
+                return (short)o;
+            throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
@@ -479,17 +501,20 @@ public class FileConfig implements Config {
      */
     public float getFloat(@NotNull String key){
         try{
-            return (float)get(key);
+            Object o = get(key);
+            if(o != null)
+                return (float)o;
+            throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
     }
 
-    Map<String, Object> getMap(){
+    @NotNull Map<String, Object> getMap(){
         return this.map;
     }
 
-    public void setMap(Map<String, Object> map){
+    public void setMap(@NotNull Map<String, Object> map){
         this.map = map;
     }
 
