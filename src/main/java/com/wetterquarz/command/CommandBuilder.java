@@ -1,8 +1,11 @@
 package com.wetterquarz.command;
 
-import com.wetterquarz.DiscordClient;
+import java.util.function.Consumer;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import com.wetterquarz.DiscordClient;
 
 /**
  * With this class you can easily create a new instance of {@link Command} which will be used to call commands.
@@ -72,8 +75,8 @@ public class CommandBuilder extends CommandSegmentBuilder {
      * @throws IllegalArgumentException if the element has already been registered
      */
     @Override
-    public CommandBuilder addSubCommandLevel(CommandSegmentBuilder commandSegmentBuilder){
-        super.addSubCommandLevel(commandSegmentBuilder);
+    public CommandBuilder addSubCommandLevel(@NotNull String name, CommandExecutable e, Consumer<CommandSegmentBuilder> commandSegmentBuilder){
+    	super.addSubCommandLevel(name, e, commandSegmentBuilder);
         return this;
     }
 

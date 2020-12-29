@@ -1,13 +1,14 @@
 package com.wetterquarz.command;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.*;
+import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+
+import org.jetbrains.annotations.NotNull;
 
 public class CommandSegmentBuilder {
-    List<CommandSegmentBuilder> subCommandBuilders;
     CommandExecutable commandExecutable;
     String name;
     @NotNull protected final List<String> aliases;
@@ -39,6 +40,7 @@ public class CommandSegmentBuilder {
         return new CommandSegment(name.toLowerCase(), buildSegments(), commandExecutable);
     }
 
+    List<CommandSegmentBuilder> subCommandBuilders;
     @Nullable
     protected Map<String, CommandSegment> buildSegments(){
         if(subCommandBuilders == null)
@@ -46,8 +48,13 @@ public class CommandSegmentBuilder {
 
         Map<String, CommandSegment> commandSegments = new TreeMap<>();
 
-        for(CommandSegmentBuilder subCommandBuilder : subCommandBuilders)
-            commandSegments.put(subCommandBuilder.name, subCommandBuilder.build());
+        for(CommandSegmentBuilder subCommandBuilder : subCommandBuilders) {
+        	CommandSegment seg = subCommandBuilder.build();
+            commandSegments.put(subCommandBuilder.name, seg);
+            for (String alias : subCommandBuilder.aliases) {
+				commandSegments.put(alias, seg);
+			}
+        }
 
         return commandSegments;
     }
@@ -59,47 +66,31 @@ public class CommandSegmentBuilder {
      * @return the new {@link CommandBuilder} object
      * @throws IllegalArgumentException if the element has already been registered
      */
-    public CommandSegmentBuilder addSubCommandLevel(CommandSegmentBuilder commandSegmentBuilder){
-
-
-        /*CommandSegmentBuilder commandSegmentBuilder = this;
-
-        for(int i = 0; i < args.length; i++){
-            if(i + 1 == args.length){
-                //Exactly one element remaining
-
-                if(commandSegmentBuilder.subCommandBuilders == null){
-                    commandSegmentBuilder.subCommandBuilders = new ArrayList<>();
-                }else{
-                    for(CommandSegmentBuilder subCommandBuilder : commandSegmentBuilder.subCommandBuilders){
-                        if(subCommandBuilder.name.equalsIgnoreCase(args[i])){
-                            throw new IllegalArgumentException("This element has already been registered: " + name);
-                        }
-                    }
-                }
-
-                commandSegmentBuilder.subCommandBuilders.add(new CommandSegmentBuilder(args[i], commandExecutable));
-                return this;
-            }else{
-                //more than one element remaining
-
-                if(commandSegmentBuilder.subCommandBuilders == null)
-                    throw new IllegalArgumentException("You cannot create multiple levels at once");
-
-                CommandSegmentBuilder commandSegmentBuilderTemp = null;
-
-                for(CommandSegmentBuilder subCommandBuilder : commandSegmentBuilder.subCommandBuilders){
-                    if(subCommandBuilder.name.equalsIgnoreCase(args[i])){
-                        commandSegmentBuilderTemp = subCommandBuilder;
-                        break;
-                    }
-                }
-
-                if(commandSegmentBuilderTemp == null)
-                    throw new IllegalArgumentException("One of the levels is not registered yet and needs to.");
-                commandSegmentBuilder = commandSegmentBuilderTemp;
-            }
-        }*/
+    private CommandSegmentBuilder addSubCommandLevel(CommandSegmentBuilder commandSegmentBuilder){
+    	if(subCommandBuilders == null) {
+    		subCommandBuilders = new ArrayList<CommandSegmentBuilder>(Collections.singleton(commandSegmentBuilder));
+    	} else {
+    		List<String> reserved = new ArrayList<>();
+    		for(CommandSegmentBuilder b : subCommandBuilders) {
+    			reserved.add(b.name);
+    			reserved.addAll(b.aliases);
+    		}
+    		List<String> newReserved = new ArrayList<>(commandSegmentBuilder.aliases);
+    		newReserved.add(commandSegmentBuilder.name);
+    		if(Collections.disjoint(reserved, newReserved)) {
+    			subCommandBuilders.add(commandSegmentBuilder);
+    		} else {
+    			throw new IllegalArgumentException("Duplicate meanings for one command");
+    		}
+    	}
         return this;
     }
+
+
+	public CommandSegmentBuilder addSubCommandLevel(@NotNull String name, CommandExecutable e, Consumer<CommandSegmentBuilder> commandSegmentBuilder) {
+		CommandSegmentBuilder b = new CommandSegmentBuilder(name, e);
+		commandSegmentBuilder.accept(b);
+    	this.addSubCommandLevel(b);
+		return this;
+	}
 }
