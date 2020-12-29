@@ -14,8 +14,18 @@ public class CommandSegment {
 
     public CommandSegment(@NotNull String name, @Nullable Map<String, CommandSegment> commandSegments, @Nullable CommandExecutable commandExecutable){
         this.name = name;
-        this.commandSegments = commandSegments == null ? null : ImmutableMap.copyOf(commandSegments);
-        this.commandExecutable = commandExecutable == null ? new DefaultCommandExecutable(this) : commandExecutable;
+
+        if((commandSegments == null || commandSegments.size() == 0) && commandExecutable == null)
+            throw new UnsupportedOperationException("Empty command segment.");
+
+        try{
+            if(commandSegments != null && commandSegments.containsValue(null))
+                throw new IllegalArgumentException();
+        }catch(NullPointerException ignore){
+        }finally{
+            this.commandSegments = commandSegments == null ? null : ImmutableMap.copyOf(commandSegments);
+            this.commandExecutable = commandExecutable == null ? new DefaultCommandExecutable(this) : commandExecutable;
+        }
     }
 
     public void forEachPossibleArgument(BiConsumer<String, CommandSegment> biConsumer){
@@ -24,10 +34,15 @@ public class CommandSegment {
         commandSegments.forEach(biConsumer);
     }
 
-    @Nullable
-    public Map<String, CommandSegment> getCommandSegments(){
+    public @Nullable Map<String, CommandSegment> getCommandSegments(){
         return commandSegments;
     }
 
+    public @NotNull CommandExecutable getExecutableCommand(){
+        return commandExecutable;
+    }
 
+    public @NotNull String getName(){
+        return name;
+    }
 }

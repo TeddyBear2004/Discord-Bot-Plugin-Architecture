@@ -68,22 +68,18 @@ public class DiscordClient {
         if(Objects.isNull(databaseOption))
             throw new NullPointerException("Could not find any database connection strings.");
 
-        if(Boolean.parseBoolean(databaseOption.get("useDatabase").toString())){
 
-            ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
-                    .option(DRIVER, "mysql")
-                    .option(HOST, databaseOption.get("host").toString())
-                    .option(USER, databaseOption.get("user").toString())
-                    .option(PORT, (int)databaseOption.get("port"))
-                    .option(PASSWORD, databaseOption.get("password").toString())
-                    .option(DATABASE, databaseOption.get("database").toString())
-                    .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
-                    .build();
+        ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
+                .option(DRIVER, "mysql")
+                .option(HOST, databaseOption.get("host").toString())
+                .option(USER, databaseOption.get("user").toString())
+                .option(PORT, (int)databaseOption.get("port"))
+                .option(PASSWORD, databaseOption.get("password").toString())
+                .option(DATABASE, databaseOption.get("database").toString())
+                .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
+                .build();
 
-            this.databaseManager = new DatabaseManager(options);
-        }else{
-            this.databaseManager = null;
-        }
+        this.databaseManager = new DatabaseManager(options);
     }
 
     public static void main(String[] args){
@@ -117,5 +113,9 @@ public class DiscordClient {
 
     public @NotNull Config getConfig(){
         return config;
+    }
+
+    public @NotNull GatewayDiscordClient getGatewayDiscordClient(){
+        return gatewayDiscordClient;
     }
 }

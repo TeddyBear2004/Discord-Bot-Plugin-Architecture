@@ -21,16 +21,8 @@ public class Command extends CommandSegment {
         this.botCanSend = botsCanSend;
     }
 
-    public CommandExecutable getExecutableCommand(){
-        return commandExecutable;
-    }
-
     public List<String> getAliases(){
         return aliases;
-    }
-
-    public String getName(){
-        return name;
     }
 
     public String getPrefix(){

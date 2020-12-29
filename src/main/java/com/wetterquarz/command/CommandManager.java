@@ -5,9 +5,14 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import org.jetbrains.annotations.NotNull;
+import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class CommandManager {
     private final Map<String, Command> commandMap;
@@ -15,48 +20,58 @@ public class CommandManager {
     public CommandManager(@NotNull GatewayDiscordClient discordClient){
         this.commandMap = new TreeMap<>();
 
-        discordClient.getEventDispatcher().on(MessageCreateEvent.class).doOnNext(event -> {
+        discordClient.getEventDispatcher().on(MessageCreateEvent.class).flatMap(event -> {
             Message message = event.getMessage();
-            List<String> args = new LinkedList<>(Arrays.asList(message.getContent().split(" ")));
+            List<String> args = Arrays.asList(message.getContent().split(" "));
 
-            Stream.of(commandMap.get(args.get(0)))
-                    .filter(Objects::nonNull)
-                    .filter(command -> command.canBotSend()
-                            || !message.getAuthor().map(User::isBot).orElse(false))
-                    .forEach(command -> {
+            Command command = commandMap.get(args.get(0));
+            if(command != null){
+                if(message.getAuthor().isPresent()
+                        && (command.canBotSend()
+                        || !message.getAuthor().map(User::isBot)
+                        .orElse(false))){
+                    Tuple2<CommandSegment, Integer> commandSegmentIntegerPair =
+                            getLastCommandSegment(command, args, 1);
 
-                        Pair<CommandSegment, Integer> commandSegmentIntegerPair =
-                                getLastCommandSegment(command, args, 1);
-
-                        Stream.of(event.getMember().orElse(null))
-                                .filter(Objects::nonNull)
-                                .forEach(member ->
-                                        message.getChannel().subscribe(
-                                                messageChannel -> commandSegmentIntegerPair.getA().commandExecutable.execute(
-                                                        args.subList(0, commandSegmentIntegerPair.getB()).toArray(new String[0]),
-                                                        args.subList(commandSegmentIntegerPair.getB(), args.size()).toArray(new String[0]),
-                                                        member,
-                                                        command,
-                                                        messageChannel,
-                                                        messageChannel.getClient()).subscribe()));
-                    });
+                    if(event.getGuildId().orElse(null) == null)
+                        return message.getChannel().flatMap(messageChannel ->
+                                commandSegmentIntegerPair.getT1().commandExecutable.execute(
+                                        args.subList(0, commandSegmentIntegerPair.getT2()).toArray(new String[0]),
+                                        args.subList(commandSegmentIntegerPair.getT2(), args.size()).toArray(new String[0]),
+                                        message.getAuthor().get(),
+                                        command,
+                                        messageChannel,
+                                        messageChannel.getClient())
+                                        .then());
+                    else
+                        return message.getChannel().flatMap(messageChannel ->
+                                commandSegmentIntegerPair.getT1().commandExecutable.execute(
+                                        args.subList(0, commandSegmentIntegerPair.getT2()).toArray(new String[0]),
+                                        args.subList(commandSegmentIntegerPair.getT2(), args.size()).toArray(new String[0]),
+                                        event.getMember().get(),
+                                        command,
+                                        messageChannel,
+                                        messageChannel.getClient()))
+                                .then();
+                }
+            }
+            return Mono.empty();
         }).onErrorContinue((t, obj) -> t.printStackTrace()).subscribe();
     }
 
-    @NotNull
-    private Pair<CommandSegment, Integer> getLastCommandSegment(@NotNull CommandSegment segment, @NotNull List<String> args, int i){
+    private Tuple2<CommandSegment, Integer> getLastCommandSegment(@NotNull CommandSegment segment, @NotNull List<String> args, int i){
         if(segment.commandSegments == null)
-            return new Pair<>(segment, i);
+            return Tuples.of(segment, i);
 
         try{
             CommandSegment commandSegment = segment.commandSegments.get(args.get(i));
 
             if(commandSegment == null)
-                return new Pair<>(segment, i);
+                return Tuples.of(segment, i);
 
             return getLastCommandSegment(commandSegment, args, ++i);
         }catch(IndexOutOfBoundsException ignore){
-            return new Pair<>(segment, i);
+            return Tuples.of(segment, i);
         }
     }
 
@@ -69,24 +84,5 @@ public class CommandManager {
         String prefix = command.getPrefix();
         this.commandMap.put(prefix + command.getName(), command);
         command.getAliases().forEach(s -> this.commandMap.put(prefix + s.split(" ")[0], command));
-    }
-
-    private static class Pair<A, B>{
-        private final A a;
-        private final B b;
-
-        public Pair(A a, B b){
-
-            this.a = a;
-            this.b = b;
-        }
-
-        public A getA(){
-            return a;
-        }
-
-        public B getB(){
-            return b;
-        }
     }
 }
