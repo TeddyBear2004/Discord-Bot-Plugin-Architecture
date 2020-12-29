@@ -1,25 +1,24 @@
 package com.wetterquarz;
 
+import static io.r2dbc.spi.ConnectionFactoryOptions.*;
+
+import java.time.Duration;
+import java.util.*;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.wetterquarz.command.CommandBuilder;
 import com.wetterquarz.command.CommandManager;
 import com.wetterquarz.config.Config;
 import com.wetterquarz.config.FileConfig;
 import com.wetterquarz.database.DatabaseManager;
 import com.wetterquarz.plugin.PluginManager;
+
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import io.r2dbc.spi.ConnectionFactoryOptions;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.Map;
-import java.util.Objects;
-
-import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 public class DiscordClient {
     @NotNull private static final DiscordClient discordClient;
@@ -89,6 +88,7 @@ public class DiscordClient {
                 new CommandBuilder("pong", new PongCommand()).build());
 
         discordClient.gatewayDiscordClient.onDisconnect().block();
+        System.exit(0);
     }
 
     public static @NotNull DiscordClient getDiscordClient(){

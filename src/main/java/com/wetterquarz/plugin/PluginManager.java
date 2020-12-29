@@ -1,17 +1,19 @@
 package com.wetterquarz.plugin;
 
-import com.wetterquarz.config.FileConfig;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+
+import com.wetterquarz.config.FileConfig;
 
 public class PluginManager {
 	public static final File PLUGIN_FOLDER = new File("./plugins");
@@ -28,6 +30,14 @@ public class PluginManager {
 
 	public PluginManager() {
 		reload();
+//		DiscordClient.getDiscordClient().getEventDispatcher().on(ReadyEvent.class).subscribe(event -> {
+//			
+//		});
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			plugins.forEach((str, pm) -> {
+				pm.getPlugin().onUnload();
+			});
+		}));
 	}
 
 	public void reload() {
