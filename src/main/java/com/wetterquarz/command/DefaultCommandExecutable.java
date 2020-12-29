@@ -8,6 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class DefaultCommandExecutable implements CommandExecutable {
     private final CommandSegment commandSegment;
 
@@ -22,11 +27,26 @@ public class DefaultCommandExecutable implements CommandExecutable {
         if(commandSegment.getCommandSegments() != null && commandSegment.getCommandSegments().size() != 0){
             builder = new StringBuilder("At least one argument is missing. Possible arguments are:");
 
-            commandSegment.forEachPossibleArgument((s, commandSegment1) -> builder.append("\n").append(s));
+            Map<CommandSegment, List<String>> map = new HashMap<>();
+
+            if(commandSegment.commandSegments != null){
+                commandSegment.commandSegments.forEach((s, segment) -> {
+                    if(!map.containsKey(segment))
+                        map.put(segment, new ArrayList<>());
+                    map.get(segment).add(s);
+                });
+            }
+
+            map.forEach((commandSegment, strings) -> {
+                builder.append("\n- ");
+                strings.forEach(s -> builder.append(s).append(", "));
+                builder.replace(builder.length()-2, builder.length(), "");
+                builder.append("   ").append("or");
+            });
+            builder.replace(builder.length()-5,builder.length(),"");
         }else
             builder = new StringBuilder("This command contains no handler or any subcommands.");
 
         return channel.createMessage(builder.toString());
-
     }
 }
