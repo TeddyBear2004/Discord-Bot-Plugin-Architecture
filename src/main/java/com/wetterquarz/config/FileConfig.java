@@ -79,12 +79,6 @@ public class FileConfig implements Config {
         this.map = load(in);
     }
 
-    protected FileConfig(){
-        this.file = null;
-        this.map = new HashMap<>();
-        this.yaml = getYaml();
-    }
-
     /**
      * Set the given value to the key. If the key already exist it will override the old value.
      *
