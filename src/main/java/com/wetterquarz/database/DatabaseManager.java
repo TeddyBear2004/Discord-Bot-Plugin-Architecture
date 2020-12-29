@@ -15,7 +15,7 @@ public class DatabaseManager {
 
     }
 
-    public Mono<? extends Result> execute(Function<Connection, Mono<? extends Result>> function){ //todo rename method
+    public Mono<? extends Result> executeTransaction(Function<Connection, Mono<? extends Result>> function){
         final Mono<Connection> connectionMono = Mono.<Connection>from(this.factory.create()).doOnNext(Connection::beginTransaction);
 
         Mono<? extends Result> res = connectionMono.flatMap(function).cache();
@@ -27,14 +27,14 @@ public class DatabaseManager {
     }
 
     public Mono<? extends Result> executeSQL(String sql){
-        return execute(connection -> Mono.from(connection.createStatement(sql).execute()));
+        return executeTransaction(connection -> Mono.from(connection.createStatement(sql).execute()));
     }
 
     public Mono<? extends Result> executeSQL(String sql, Consumer<Statement> statement){
         if(statement == null)
             return executeSQL(sql);
 
-        return execute(connection -> {
+        return executeTransaction(connection -> {
             Statement statement1 = connection.createStatement(sql);
 
             statement.accept(statement1);
