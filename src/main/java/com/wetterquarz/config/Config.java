@@ -154,7 +154,7 @@ public interface Config {
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
      */
-    Map<String, Object> getSubMap(@NotNull String key);
+    SubConfig getSubMap(@NotNull String key);
 
     /**
      * Return the integer where the key is set.
@@ -241,4 +241,6 @@ public interface Config {
      * @throws UnsupportedOperationException If the config is read-only.
      */
     void save();
+
+    interface SubConfig extends Config{}
 }
