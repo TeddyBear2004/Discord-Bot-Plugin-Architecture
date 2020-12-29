@@ -41,17 +41,6 @@ public class DiscordClient {
         discordClient = new DiscordClient(config);
     }
 
-    public static void main(String[] args){
-        DiscordClient discordClient = getDiscordClient();
-
-        discordClient.getCommandManager().registerCommands(
-                new CommandBuilder("pong",
-                        (usedAlias, args1, executor, rootCommand, channel, discordClient1) -> channel.createMessage("Ping!"))
-                        .build());
-
-        discordClient.gatewayDiscordClient.onDisconnect().block();
-    }
-
     private final @NotNull CommandManager commandManager;
     private final @NotNull PluginManager pluginManager;
     private final @Nullable DatabaseManager databaseManager;
@@ -90,6 +79,15 @@ public class DiscordClient {
         }else{
             this.databaseManager = null;
         }
+    }
+
+    public static void main(String[] args){
+        DiscordClient discordClient = getDiscordClient();
+
+        discordClient.getCommandManager().registerCommands(
+                new CommandBuilder("pong", new PongCommand()).build());
+
+        discordClient.gatewayDiscordClient.onDisconnect().block();
     }
 
     public static @NotNull DiscordClient getDiscordClient(){

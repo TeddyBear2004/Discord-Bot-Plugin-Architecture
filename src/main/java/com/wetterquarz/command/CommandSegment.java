@@ -28,4 +28,6 @@ public class CommandSegment {
     public Map<String, CommandSegment> getCommandSegments(){
         return commandSegments;
     }
+
+
 }
