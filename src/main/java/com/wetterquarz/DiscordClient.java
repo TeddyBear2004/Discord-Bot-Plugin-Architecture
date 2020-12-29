@@ -68,11 +68,11 @@ public class DiscordClient {
 
         ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
                 .option(DRIVER, "mysql")
-                .option(HOST, databaseOption.getString("host"))
-                .option(USER, databaseOption.getString("user"))
+                .option(HOST, Objects.requireNonNull(databaseOption.getString("host")))
+                .option(USER, Objects.requireNonNull(databaseOption.getString("user")))
                 .option(PORT, databaseOption.getInt("port"))
-                .option(PASSWORD, databaseOption.getString("password"))
-                .option(DATABASE, databaseOption.getString("database"))
+                .option(PASSWORD, Objects.requireNonNull(databaseOption.getString("password")))
+                .option(DATABASE, Objects.requireNonNull(databaseOption.getString("database")))
                 .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
                 .build();
 
