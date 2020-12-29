@@ -75,16 +75,17 @@ public class PluginManager {
 		String name = config.getString("name");
 		String label = config.getString("label");
 		String version = config.getString("version");
-		
-		if(name.contains(" ")) {
-			LOGGER.error(jar.getName() + " Plugin names may not contain spaces.");
-			return null;
-		}
 
 		if (main == null || name == null || version == null) {
 			LOGGER.error(jar.getName() + "'s plugin.yml does not contain main, name or version entries.");
 			return null;
 		}
+
+		if(name.contains(" ")) {
+			LOGGER.error(jar.getName() + " Plugin names may not contain spaces.");
+			return null;
+		}
+
 		ClassLoader loader = URLClassLoader.newInstance(new URL[] { jarLoc }, getClass().getClassLoader());
 
 		try {
