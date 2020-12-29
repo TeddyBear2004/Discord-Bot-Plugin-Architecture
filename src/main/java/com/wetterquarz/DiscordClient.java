@@ -62,7 +62,7 @@ public class DiscordClient {
 
         this.pluginManager = new PluginManager();
 
-        Map<String, Object> databaseOption = config.getSubMap("database");
+        FileConfig databaseOption = config.getSubConfig("database");
 
         if(Objects.isNull(databaseOption))
             throw new NullPointerException("Could not find any database connection strings.");
