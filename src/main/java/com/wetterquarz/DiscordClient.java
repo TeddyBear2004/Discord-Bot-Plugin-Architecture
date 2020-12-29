@@ -38,9 +38,6 @@ public class DiscordClient {
 
         config.save();
 
-        config.setDefault("t.h","o");
-        config.save();
-
         discordClient = new DiscordClient(config);
     }
 
