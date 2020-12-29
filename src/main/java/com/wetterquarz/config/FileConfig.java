@@ -9,10 +9,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * You can handle your YAML based config file with this class.
@@ -41,13 +38,15 @@ public class FileConfig implements Config {
      */
     @Nullable private final File file;
     @NotNull private final Yaml yaml;
+    private final boolean isSubConfig;
     /**
      * This map contains all yaml elements of the file or those which are newly set.
      * Can be synchronised by method .save();
      */
     @NotNull private Map<String, Object> map;
 
-    private final boolean isSubConfig;
+    @Nullable private String key;
+    @Nullable private FileConfig fileConfig;
 
     /**
      * Create or initialise a configFile at the given location.
@@ -72,11 +71,14 @@ public class FileConfig implements Config {
         this(new File(CONFIG_FOLDER + configFileName + CONFIG_FILE_SUFFIX));
     }
 
-    private FileConfig(){
+    private FileConfig(@NotNull FileConfig fileConfig, @NotNull String key){
         this.yaml = getYaml();
         this.file = null;
+        this.key = key;
+        this.fileConfig = fileConfig;
         this.map = new LinkedHashMap<>();
         isSubConfig = true;
+        this.reload();
     }
 
     /**
@@ -332,9 +334,23 @@ public class FileConfig implements Config {
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
      */
-    @Nullable
-    public List<Object> getList(@NotNull String key){
-        return (List<Object>)get(key);
+    public @Nullable List<?> getList(@NotNull String key){
+
+        Object o = get(key);
+
+        if(o instanceof List){
+            List list = (List)o;
+
+            if((list).size() != 0)
+                if(list.size() == list.stream().filter(o1 -> o1 instanceof Map).count()){
+                    List<FileConfig> subFileConfigs = new ArrayList<>();
+
+                    list.forEach(o1 -> subFileConfigs.add(new FileConfig(this, key + "." + o1.toString())));
+
+                    return subFileConfigs;
+                }
+        }
+        throw new ClassCastException();
     }
 
     /**
@@ -345,8 +361,8 @@ public class FileConfig implements Config {
      * @throws ClassCastException if the value is not List.
      */
     @NotNull
-    public SubFileConfig getSubMap(@NotNull String key){
-        return new SubFileConfig(this, key);
+    public FileConfig getSubConfig(@NotNull String key){
+        return new FileConfig(this, key);
     }
 
     /**
@@ -511,10 +527,24 @@ public class FileConfig implements Config {
      * @throws UnsupportedOperationException If the config is read-only.
      */
     public void reload(){
-        if(this.file == null)
-            throw new UnsupportedOperationException("This config is read-only.");
+        if(isSubConfig){
+            if(this.fileConfig != null && key != null){
+                this.fileConfig.reload();
+                Object o = this.fileConfig.get(key);
+                if(o == null){
+                    setMap(new LinkedHashMap<>());
+                    return;
+                }else if(!(o instanceof Map))
+                    throw new UnsupportedOperationException("Could not find a map at the given location");
+                setMap((Map<String, Object>)o);
+            }
+        }else{
+            if(this.file == null)
+                throw new UnsupportedOperationException("This config is read-only.");
+            this.map = load(this.file);
+        }
 
-        this.map = load(this.file);
+
     }
 
     /**
@@ -523,66 +553,39 @@ public class FileConfig implements Config {
      * @throws UnsupportedOperationException If the config is read-only.
      */
     public void save(){
-        if(isSubConfig)
-            return;
+        if(isSubConfig){
+            if(this.fileConfig != null && key != null){
+                Map<String, Object> map = this.fileConfig.getMap();
+                map.put(this.key, this.getMap());
 
-        if(file == null)
-            throw new UnsupportedOperationException("This config is read-only.");
+                this.fileConfig.setMap(map);
+                this.fileConfig.save();
+            }
+        }else{
+            if(file == null)
+                throw new UnsupportedOperationException("This config is read-only.");
 
-        if(file.getParentFile() != null)
-            file.getParentFile().mkdirs();
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
-            this.yaml.dump(map, writer);
-        }catch(IOException e){
-            LOGGER.warn("cannot create config file", e);
-        }catch(YAMLException e){
-            LOGGER.warn("cannot dump into config file", e);
+            if(file.getParentFile() != null)
+                file.getParentFile().mkdirs();
+            try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
+                this.yaml.dump(map, writer);
+            }catch(IOException e){
+                LOGGER.warn("cannot create config file", e);
+            }catch(YAMLException e){
+                LOGGER.warn("cannot dump into config file", e);
+            }
         }
     }
 
-    public static class SubFileConfig extends FileConfig implements SubConfig {
-        @NotNull private final String key;
-        @NotNull private final FileConfig fileConfig;
-
-        /**
-         * Creates a subversion of the FileConfigHandler.
-         *
-         * @param fileConfig The fileConfig of the subconfig.
-         * @param key        The key where the map should be.
-         */
-        private SubFileConfig(@NotNull FileConfig fileConfig, @NotNull String key){
-            this.fileConfig = fileConfig;
-            this.key = key;
-            this.reload();
-        }
-
-        @Override
-        public void reload(){
-            fileConfig.reload();
-            Object o = fileConfig.get(key);
-            if(o == null){
-                setMap(new LinkedHashMap<>());
-                return;
-            }else if(!(o instanceof Map))
-                throw new UnsupportedOperationException("Could not find a map at the given location");
-            setMap((Map<String, Object>)o);
-        }
-
-        @Override
-        public void save(){
-            Map<String, Object> map = this.fileConfig.getMap();
-            map.put(getKey(), this.getMap());
-
-            this.getFileConfig().setMap(map);
-            super.save();
-        }
-
-        private @NotNull String getKey(){
-            return key;
-        }
-
-        private @NotNull FileConfig getFileConfig(){
-            return fileConfig;
-        }
+    @Override
+    public String toString(){
+        return "FileConfig{" +
+                "file=" + file +
+                ", yaml=" + yaml +
+                ", isSubConfig=" + isSubConfig +
+                ", map=" + map +
+                ", key='" + key + '\'' +
+                ", fileConfig=" + fileConfig +
+                '}';
     }
 }

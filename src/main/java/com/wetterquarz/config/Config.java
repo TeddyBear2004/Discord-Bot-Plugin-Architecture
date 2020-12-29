@@ -1,6 +1,7 @@
 package com.wetterquarz.config;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -145,7 +146,7 @@ public interface Config {
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
      */
-    List<Object> getList(@NotNull String key);
+    @Nullable List<?> getList(@NotNull String key);
 
     /**
      * Return the map where the key is set or null if the key is not set or the value is no list.
@@ -154,7 +155,7 @@ public interface Config {
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
      */
-    SubConfig getSubMap(@NotNull String key);
+    FileConfig getSubConfig(@NotNull String key);
 
     /**
      * Return the integer where the key is set.

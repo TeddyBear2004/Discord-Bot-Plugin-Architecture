@@ -24,7 +24,7 @@ public class DiscordClient {
 
     static{
         FileConfig config = new FileConfig("config");
-        FileConfig.SubFileConfig databaseOption = config.getSubMap("database");
+        FileConfig databaseOption = config.getSubConfig("database");
 
         databaseOption.setDefault("host", "set db host here");
         databaseOption.setDefault("user", "set db user here");
@@ -61,7 +61,7 @@ public class DiscordClient {
 
         this.pluginManager = new PluginManager();
 
-        Config.SubConfig databaseOption = config.getSubMap("database");
+        FileConfig databaseOption = config.getSubConfig("database");
 
         if(Objects.isNull(databaseOption))
             throw new NullPointerException("Could not find any database connection strings.");
