@@ -88,13 +88,5 @@ public class CommandManager {
         public B getB(){
             return b;
         }
-
-        @Override
-        public String toString(){
-            return "Pair{" +
-                    "a=" + a +
-                    ", b=" + b +
-                    '}';
-        }
     }
 }
