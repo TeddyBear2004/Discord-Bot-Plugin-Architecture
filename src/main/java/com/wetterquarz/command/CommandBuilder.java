@@ -4,18 +4,12 @@ import com.wetterquarz.DiscordClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * With this class you can easily create a new instance of {@link Command} which will be used to call commands.
  *
  * @author Teddy
  */
 public class CommandBuilder extends CommandSegmentBuilder {
-    @NotNull
-    private final List<String> aliases;
     @NotNull
     private String prefix;
     private boolean canBotSend;
@@ -33,7 +27,6 @@ public class CommandBuilder extends CommandSegmentBuilder {
         if(name.contains(" "))
             throw new IllegalArgumentException("You may not use spaces within the name.");
 
-        this.aliases = new ArrayList<>();
         this.prefix = DiscordClient.getDiscordClient().getConfig().getString("prefix");
 
         this.canBotSend = false;
@@ -57,7 +50,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
      * @return the new {@link CommandBuilder} object
      */
     public CommandBuilder withPrefix(@Nullable String prefix){
-        this.prefix = prefix == null ? "!" : prefix;//todo get prefix from config
+        this.prefix = prefix == null ? DiscordClient.getDiscordClient().getConfig().getString("prefix") : prefix;
         return this;
     }
 
@@ -68,59 +61,19 @@ public class CommandBuilder extends CommandSegmentBuilder {
      * @return the new {@link CommandBuilder} object
      */
     public CommandBuilder addAliases(String... aliases){
-        this.aliases.addAll(Arrays.asList(aliases));
+        super.addAliases(aliases);
         return this;
     }
 
     /**
      * Register a new level of the command.
      *
-     * @param name              The name of the new command level
-     * @param commandExecutable The object which will be started if the command passed through the {@link CommandManager}
      * @return the new {@link CommandBuilder} object
      * @throws IllegalArgumentException if the element has already been registered
      */
-    public CommandBuilder addSubCommandLevel(String name, CommandExecutable commandExecutable){
-        String[] args = name.split(" ");
-
-        CommandSegmentBuilder commandSegmentBuilder = this;
-
-        for(int i = 0; i < args.length; i++){
-            if(i + 1 == args.length){
-                //Exactly one element remaining
-
-                if(commandSegmentBuilder.subCommandBuilders == null){
-                    commandSegmentBuilder.subCommandBuilders = new ArrayList<>();
-                }else{
-                    for(CommandSegmentBuilder subCommandBuilder : commandSegmentBuilder.subCommandBuilders){
-                        if(subCommandBuilder.name.equalsIgnoreCase(args[i])){
-                            throw new IllegalArgumentException("This element has already been registered: " + name);
-                        }
-                    }
-                }
-
-                commandSegmentBuilder.subCommandBuilders.add(new CommandSegmentBuilder(args[i], commandExecutable));
-                return this;
-            }else{
-                //more than one element remaining
-
-                if(commandSegmentBuilder.subCommandBuilders == null)
-                    throw new IllegalArgumentException("You cannot create multiple levels at once");
-
-                CommandSegmentBuilder commandSegmentBuilderTemp = null;
-
-                for(CommandSegmentBuilder subCommandBuilder : commandSegmentBuilder.subCommandBuilders){
-                    if(subCommandBuilder.name.equalsIgnoreCase(args[i])){
-                        commandSegmentBuilderTemp = subCommandBuilder;
-                        break;
-                    }
-                }
-
-                if(commandSegmentBuilderTemp == null)
-                    throw new IllegalArgumentException("One of the levels is not registered yet and needs to.");
-                commandSegmentBuilder = commandSegmentBuilderTemp;
-            }
-        }
+    @Override
+    public CommandBuilder addSubCommandLevel(CommandSegmentBuilder commandSegmentBuilder){
+        super.addSubCommandLevel(commandSegmentBuilder);
         return this;
     }
 
