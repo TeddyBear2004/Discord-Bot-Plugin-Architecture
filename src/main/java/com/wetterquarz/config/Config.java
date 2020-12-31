@@ -242,6 +242,4 @@ public interface Config {
      * @throws UnsupportedOperationException If the config is read-only.
      */
     void save();
-
-    interface SubConfig extends Config{}
 }
