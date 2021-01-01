@@ -77,7 +77,7 @@ public class FileConfig implements Config {
         this.key = key;
         this.fileConfig = fileConfig;
         this.map = new LinkedHashMap<>();
-        isSubConfig = true;
+        this.isSubConfig = true;
         this.reload();
     }
 
@@ -113,11 +113,25 @@ public class FileConfig implements Config {
         if(file == null && !isSubConfig)
             throw new UnsupportedOperationException("This config is read-only.");
 
+        int j = key.indexOf('@');
+        int indexFromList = 0;
+        if(j != -1){
+            String s = key.substring(j);
+            try{
+                indexFromList = Integer.parseInt(s);
+            }catch(NumberFormatException ignore){
+            }
+        }
+
         String[] path = key.split("\\.");
 
-        if(path.length <= 1)
-            map.put(key, value);
-        else{
+        if(path.length <= 1){
+            Object o = map.get(key);
+            if(o instanceof List && indexFromList != 0)
+                ((List<Object>)o).set(indexFromList, value);
+            else
+                map.put(key, value);
+        }else{
             Map<String, Object> cache = map;
 
             for(int i = 0; i < path.length - 1; i++){
@@ -127,8 +141,11 @@ public class FileConfig implements Config {
 
                 cache = map1;
             }
-
-            cache.put(path[path.length - 1], value);
+            Object o = cache.get(path[path.length - 1]);
+            if(o instanceof List && indexFromList != 0)
+                ((List<Object>)o).set(indexFromList, value);
+            else
+                cache.put(path[path.length - 1], value);
         }
     }
 
@@ -341,15 +358,22 @@ public class FileConfig implements Config {
         if(o instanceof List){
             List<?> list = (List<?>)o;
 
-            if((list).size() != 0)
-                if(list.size() == list.stream().filter(o1 -> o1 instanceof Map).count()){
-                    List<FileConfig> subFileConfigs = new ArrayList<>();
+            if((list).size() != 0){
+                List<Object> subObjects = new ArrayList<>();
 
-                    list.forEach(o1 -> subFileConfigs.add(new FileConfig(this, key + "." + o1.toString())));
-
-                    return subFileConfigs;
+                for(int i = 0; i < list.size(); i++){
+                    Object o1 = list.get(i);
+                    if(o1 instanceof Map)
+                        subObjects.add(new FileConfig(this, key + "@" + i));
+                    else
+                        subObjects.add(o1);
                 }
+
+
+                return subObjects;
+            }
         }
+
         throw new ClassCastException();
     }
 
