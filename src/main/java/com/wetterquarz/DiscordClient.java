@@ -1,24 +1,25 @@
 package com.wetterquarz;
 
-import static io.r2dbc.spi.ConnectionFactoryOptions.*;
-
-import java.time.Duration;
-import java.util.*;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import com.wetterquarz.command.CommandBuilder;
 import com.wetterquarz.command.CommandManager;
 import com.wetterquarz.config.Config;
 import com.wetterquarz.config.FileConfig;
 import com.wetterquarz.database.DatabaseManager;
 import com.wetterquarz.plugin.PluginManager;
-
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import io.r2dbc.spi.ConnectionFactoryOptions;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.Map;
+import java.util.Objects;
+
+import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 public class DiscordClient {
     @NotNull private static final DiscordClient discordClient;
@@ -33,7 +34,6 @@ public class DiscordClient {
         databaseOption.put("port", "set db port here");
         databaseOption.put("password", "set db password here");
         databaseOption.put("database", "set db database here");
-        config.setDefault("database", databaseOption);
 
         config.save();
 
@@ -50,8 +50,6 @@ public class DiscordClient {
         this.config = config;
 
         GatewayDiscordClient gatewayDiscordClient = DiscordClientBuilder.create(config.getString("token")).build().login().block();
-
-        System.out.println(config.get("database.host"));
 
         if(Objects.isNull(gatewayDiscordClient))
             throw new InputMismatchException("Cannot build the gateway discord client");
@@ -70,11 +68,11 @@ public class DiscordClient {
 
         ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
                 .option(DRIVER, "mysql")
-                .option(HOST, databaseOption.get("host").toString())
-                .option(USER, databaseOption.get("user").toString())
-                .option(PORT, (int)databaseOption.get("port"))
-                .option(PASSWORD, databaseOption.get("password").toString())
-                .option(DATABASE, databaseOption.get("database").toString())
+                .option(HOST, databaseOption.getString("host"))
+                .option(USER, databaseOption.getString("user"))
+                .option(PORT, databaseOption.getInt("port"))
+                .option(PASSWORD, databaseOption.getString("password"))
+                .option(DATABASE, databaseOption.getString("database"))
                 .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
                 .build();
 
@@ -83,9 +81,6 @@ public class DiscordClient {
 
     public static void main(String[] args){
         DiscordClient discordClient = getDiscordClient();
-
-        discordClient.getCommandManager().registerCommands(
-                new CommandBuilder("pong", new PongCommand()).build());
 
         discordClient.gatewayDiscordClient.onDisconnect().block();
         System.exit(0);
