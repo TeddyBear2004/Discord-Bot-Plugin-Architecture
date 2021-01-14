@@ -369,11 +369,9 @@ public class FileConfig implements Config {
                         subObjects.add(o1);
                 }
 
-
                 return subObjects;
             }
         }
-
         throw new ClassCastException();
     }
 
