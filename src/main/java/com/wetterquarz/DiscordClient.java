@@ -76,7 +76,7 @@ public class DiscordClient {
                     .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
                     .build();
             databaseManagerTEMP = new DatabaseManager(options);
-        }catch(NoSuchElementException ignore){
+        }catch(NoSuchElementException | NullPointerException ignore){
             databaseManagerTEMP = null;
         }
         this.databaseManager = databaseManagerTEMP;
