@@ -29,7 +29,6 @@ public class PluginManager {
 	private Map<String, PluginMetadata> plugins = new HashMap<>();
 
 	public PluginManager() {
-		reload();
 //		DiscordClient.getDiscordClient().getEventDispatcher().on(ReadyEvent.class).subscribe(event -> {
 //			
 //		});
