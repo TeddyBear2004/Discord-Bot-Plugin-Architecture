@@ -27,13 +27,12 @@ public class DiscordClient {
     static{
         FileConfig config = new FileConfig("config");
 
-        config.setDefault("token", "set here the token!");
-        Map<String, Object> databaseOption = new HashMap<>();
-        databaseOption.put("host", "set db host here");
-        databaseOption.put("user", "set db user here");
-        databaseOption.put("port", "set db port here");
-        databaseOption.put("password", "set db password here");
-        databaseOption.put("database", "set db database here");
+        config.setDefault("database.token", "set here the token!");
+        config.setDefault("database.host", "set db host here");
+        config.setDefault("database.user", "set db user here");
+        config.setDefault("database.port", "set db port here");
+        config.setDefault("database.password", "set db password here");
+        config.setDefault("database.database", "set db database here");
 
         config.save();
 
