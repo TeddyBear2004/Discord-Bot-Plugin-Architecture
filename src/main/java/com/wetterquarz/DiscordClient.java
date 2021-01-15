@@ -14,10 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
@@ -27,12 +24,15 @@ public class DiscordClient {
     static{
         FileConfig config = new FileConfig("config");
 
-        config.setDefault("database.token", "set here the token!");
-        config.setDefault("database.host", "set db host here");
-        config.setDefault("database.user", "set db user here");
-        config.setDefault("database.port", "set db port here");
-        config.setDefault("database.password", "set db password here");
-        config.setDefault("database.database", "set db database here");
+        config.setDefault("token", "set here the token!");
+        Map<String, Object> databaseOption = new HashMap<>();
+        databaseOption.put("host", "set db host here");
+        databaseOption.put("user", "set db user here");
+        databaseOption.put("port", "set db port here");
+        databaseOption.put("password", "set db password here");
+        databaseOption.put("database", "set db database here");
+
+        config.setDefault("database", databaseOption);
 
         config.save();
 
@@ -64,18 +64,22 @@ public class DiscordClient {
         if(Objects.isNull(databaseOption))
             throw new NullPointerException("Could not find any database connection strings.");
 
-
-        ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
-                .option(DRIVER, "mysql")
-                .option(HOST, databaseOption.getString("host"))
-                .option(USER, databaseOption.getString("user"))
-                .option(PORT, databaseOption.getInt("port"))
-                .option(PASSWORD, databaseOption.getString("password"))
-                .option(DATABASE, databaseOption.getString("database"))
-                .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
-                .build();
-
-        this.databaseManager = new DatabaseManager(options);
+        DatabaseManager databaseManagerTEMP;
+        try{
+            ConnectionFactoryOptions options = ConnectionFactoryOptions.builder()
+                    .option(DRIVER, "mysql")
+                    .option(HOST, databaseOption.getString("host"))
+                    .option(USER, databaseOption.getString("user"))
+                    .option(PORT, databaseOption.getInt("port"))
+                    .option(PASSWORD, databaseOption.getString("password"))
+                    .option(DATABASE, databaseOption.getString("database"))
+                    .option(CONNECT_TIMEOUT, Duration.ofSeconds(3))
+                    .build();
+            databaseManagerTEMP = new DatabaseManager(options);
+        }catch(NoSuchElementException ignore){
+            databaseManagerTEMP = null;
+        }
+        this.databaseManager = databaseManagerTEMP;
     }
 
     public static void main(String[] args){
