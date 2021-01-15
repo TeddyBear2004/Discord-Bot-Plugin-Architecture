@@ -113,6 +113,9 @@ public class FileConfig implements Config {
         if(file == null && !isSubConfig)
             throw new UnsupportedOperationException("This config is read-only.");
 
+        if(value.getClass() == getClass())
+            value = ((FileConfig)value).getMap();
+
         int j = key.indexOf('@');
         int indexFromList = 0;
         if(j != -1){
@@ -203,8 +206,6 @@ public class FileConfig implements Config {
         }
         if(get(key) == null)
             setObject(key, value);
-
-
     }
 
     /**
