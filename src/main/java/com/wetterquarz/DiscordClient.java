@@ -1,6 +1,5 @@
 package com.wetterquarz;
 
-import com.wetterquarz.command.CommandBuilder;
 import com.wetterquarz.command.CommandManager;
 import com.wetterquarz.config.Config;
 import com.wetterquarz.config.FileConfig;
@@ -25,6 +24,7 @@ public class DiscordClient {
         FileConfig config = new FileConfig("config");
 
         config.setDefault("token", "set here the token!");
+        config.setDefault("prefix", "!");
         Map<String, Object> databaseOption = new HashMap<>();
         databaseOption.put("host", "set db host here");
         databaseOption.put("user", "set db user here");
@@ -48,6 +48,8 @@ public class DiscordClient {
     private DiscordClient(Config config){
         this.config = config;
 
+        this.pluginManager = new PluginManager();
+
         GatewayDiscordClient gatewayDiscordClient = DiscordClientBuilder.create(config.getString("token")).build().login().block();
 
         if(Objects.isNull(gatewayDiscordClient))
@@ -56,8 +58,6 @@ public class DiscordClient {
         this.gatewayDiscordClient = gatewayDiscordClient;
 
         this.commandManager = new CommandManager(this.gatewayDiscordClient);
-
-        this.pluginManager = new PluginManager();
 
         FileConfig databaseOption = config.getSubConfig("database");
 
