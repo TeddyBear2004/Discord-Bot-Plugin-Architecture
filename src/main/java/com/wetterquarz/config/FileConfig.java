@@ -169,9 +169,7 @@ public class FileConfig implements Config {
      * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefaults(@NotNull Map<String, Object> objectMap){
-        map.forEach((s, o) -> objectMap.remove(s));
-
-        setObjects(objectMap);
+        map.forEach(this::setDefault);
     }
 
     /**
@@ -182,8 +180,31 @@ public class FileConfig implements Config {
      * @throws UnsupportedOperationException If the config is read-only.
      */
     public void setDefault(@NotNull String key, Object value){
+        String[] path = key.split("\\.");
+
+        if(path.length == 1){
+            if(get(key) == null){
+                setObject(key, value);
+            }
+        }else{
+            Map<String, Object> cache = map;
+
+            for(String s : path){
+                Object o = cache.get(s);
+
+                if(!(o instanceof Map)){
+                    if(get(key) == null)
+                        setObject(key, value);
+                    break;
+                }
+
+                cache = (Map<String, Object>)o;
+            }
+        }
         if(get(key) == null)
             setObject(key, value);
+
+
     }
 
     /**
