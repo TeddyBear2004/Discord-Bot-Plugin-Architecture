@@ -29,9 +29,6 @@ public class PluginManager {
 	private Map<String, PluginMetadata> plugins = new HashMap<>();
 
 	public PluginManager() {
-//		DiscordClient.getDiscordClient().getEventDispatcher().on(ReadyEvent.class).subscribe(event -> {
-//			
-//		});
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			plugins.forEach((str, pm) -> {
 				pm.getPlugin().onUnload();

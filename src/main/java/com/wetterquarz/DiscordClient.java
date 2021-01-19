@@ -39,7 +39,6 @@ public class DiscordClient {
         config.save();
 
         discordClient = new DiscordClient(config);
-		discordClient.getPluginManager().reload();
     }
 
     private final @NotNull CommandManager commandManager;
@@ -87,6 +86,7 @@ public class DiscordClient {
 
     public static void main(String[] args){
         DiscordClient discordClient = getDiscordClient();
+		discordClient.getPluginManager().reload();
 
         discordClient.gatewayDiscordClient.onDisconnect().block();
         System.exit(0);
