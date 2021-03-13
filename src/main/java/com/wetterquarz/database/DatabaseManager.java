@@ -1,10 +1,15 @@
 package com.wetterquarz.database;
 
-import io.r2dbc.spi.*;
-import reactor.core.publisher.Mono;
-
+import java.time.Duration;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import io.r2dbc.spi.*;
+import reactor.core.publisher.*;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 
 public class DatabaseManager {
@@ -12,18 +17,33 @@ public class DatabaseManager {
 
     public DatabaseManager(ConnectionFactoryOptions options){
         this.factory = ConnectionFactories.get(options);
-
+        Scheduler s = Schedulers.newSingle("DBConWorker", true);
+        Flux<Tuple2<Function<Connection, Mono<? extends Result>>, MonoSink<Result>>> transactionQueue = Flux.create(emitter -> this.transactionQueue = emitter);
+        transactionQueue.window(Duration.ofSeconds(60)).flatMap(win -> {
+        	return win.next().doOnNext(first -> {
+    			Mono.from(this.factory.create()).flatMap(con -> {
+    				return first.getT1().apply(con).doOnSuccess((Result result) -> first.getT2().success(result)).thenReturn(con);
+    			}).flatMap(con -> {
+    				return win.flatMap(tran -> {
+						return tran.getT1().apply(con).doOnSuccess((Result result) -> tran.getT2().success(result));
+    				}).then(Mono.just(con));
+    			}).doOnNext(Connection::close).subscribeOn(s);
+        	});
+        }).subscribe();
     }
-
+    
+    private FluxSink<Tuple2<Function<Connection, Mono<? extends Result>>, MonoSink<Result>>> transactionQueue;
+    
+    private Mono<? extends Result> runTransaction(Function<Connection, Mono<? extends Result>> transaction) {
+    	if(transactionQueue == null) return Mono.error(new IllegalStateException("Transaction Queue not ready"));
+    	return Mono.create(callback -> transactionQueue.next(Tuples.of(transaction, callback)));
+    }
+    
     public Mono<? extends Result> executeTransaction(Function<Connection, Mono<? extends Result>> function){
-        final Mono<Connection> connectionMono = Mono.<Connection>from(this.factory.create()).doOnNext(Connection::beginTransaction);
-
-        Mono<? extends Result> res = connectionMono.flatMap(function).cache();
-
-        return res.delayUntil(ignore1 ->
-                res.flatMap(ignore -> connectionMono
-                        .doOnNext(Connection::commitTransaction)
-                        .doOnNext(Connection::close)));
+        return runTransaction(c -> {
+	    	c.beginTransaction();
+	        return function.apply(c).delayUntil(ignore -> c.commitTransaction()).cache();
+        });
     }
 
     public Mono<? extends Result> executeSQL(String sql){
