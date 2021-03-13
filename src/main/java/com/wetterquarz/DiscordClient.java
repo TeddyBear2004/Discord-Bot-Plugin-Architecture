@@ -1,23 +1,21 @@
 package com.wetterquarz;
 
-import static io.r2dbc.spi.ConnectionFactoryOptions.*;
-
-import java.time.Duration;
-import java.util.*;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import com.wetterquarz.command.CommandManager;
 import com.wetterquarz.config.Config;
 import com.wetterquarz.config.FileConfig;
 import com.wetterquarz.database.DatabaseManager;
 import com.wetterquarz.plugin.PluginManager;
-
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import io.r2dbc.spi.ConnectionFactoryOptions;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.time.Duration;
+import java.util.*;
+
+import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 public class DiscordClient {
     @NotNull private static final DiscordClient discordClient;
