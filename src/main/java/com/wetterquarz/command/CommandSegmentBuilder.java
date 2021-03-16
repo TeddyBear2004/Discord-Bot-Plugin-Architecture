@@ -3,10 +3,8 @@ package com.wetterquarz.command;
 import java.util.*;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class CommandSegmentBuilder {
     CommandExecutable commandExecutable;
@@ -35,7 +33,7 @@ public class CommandSegmentBuilder {
         return this;
     }
 
-    @Nonnull
+    @NotNull
     protected CommandSegment build(){
         return new CommandSegment(buildSegments(), commandExecutable);
     }
