@@ -27,7 +27,7 @@ public class DatabaseManager {
     				return win.flatMap(tran -> {
 						return tran.getT1().apply(con).doOnSuccess((Result result) -> tran.getT2().success(result));
     				}).then(Mono.just(con));
-    			}).doOnNext(Connection::close).subscribeOn(s);
+    			}).doOnNext(c -> c.close()).subscribeOn(s);
         	});
         }).subscribe();
     }
