@@ -3,9 +3,8 @@ package com.wetterquarz.command;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import javax.annotation.Nullable;
-
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.ImmutableMap;
 
