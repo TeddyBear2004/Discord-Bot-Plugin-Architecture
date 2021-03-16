@@ -51,6 +51,7 @@ public class PluginManager {
 							pluginMeta.getPlugin().logger = LogManager.getLogger(pluginMeta.getName());
 							pluginMeta.getPlugin().config = new FileConfig(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
 							pluginMeta.getPlugin().onLoad();
+							System.out.println(pluginMeta.getName() + " was loaded.");
 						}
 					}
 				} catch (IOException e) {
