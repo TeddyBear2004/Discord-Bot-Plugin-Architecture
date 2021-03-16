@@ -6,12 +6,14 @@ module com.wetterquarz.discordbot {
 	exports com.wetterquarz.config;
 
 	requires com.google.common;
-	requires transitive discord4j.common;
-	requires transitive discord4j.core;
-	requires transitive discord4j.rest;
+	requires discord4j.common;
+	requires discord4j.core;
+	requires discord4j.rest;
 	requires org.jetbrains.annotations;
 	requires org.reactivestreams;
 	requires org.yaml.snakeyaml;
 	requires r2dbc.spi;
 	requires reactor.core;
+	requires log4j;
+	requires com.fasterxml.jackson.databind;
 }
