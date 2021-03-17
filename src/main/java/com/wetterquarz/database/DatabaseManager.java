@@ -17,7 +17,7 @@ public class DatabaseManager {
 
     public DatabaseManager(ConnectionFactoryOptions options){
         this.factory = ConnectionFactories.get(options);
-        Scheduler s = Schedulers.newSingle("DBConWorker", true);
+        //Scheduler s = Schedulers.newSingle("DBConWorker", true);
         Flux<Tuple2<Function<Connection, Mono<? extends Result>>, MonoSink<Result>>> transactionQueue = Flux.create(emitter -> this.transactionQueue = emitter);
         transactionQueue.window(Duration.ofSeconds(60)).flatMap(win -> {
         	return win.next().doOnNext(first -> {
@@ -27,7 +27,7 @@ public class DatabaseManager {
     				return win.flatMap(tran -> {
 						return tran.getT1().apply(con).doOnSuccess((Result result) -> tran.getT2().success(result));
     				}).then(Mono.just(con));
-    			}).doOnNext(c -> c.close()).subscribeOn(s);
+    			}).doOnNext(c -> c.close()).subscribe();
         	});
         }).subscribe();
     }
