@@ -6,8 +6,6 @@ import java.util.function.Function;
 
 import io.r2dbc.spi.*;
 import reactor.core.publisher.*;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -20,14 +18,14 @@ public class DatabaseManager {
         //Scheduler s = Schedulers.newSingle("DBConWorker", true);
         Flux<Tuple2<Function<Connection, Mono<? extends Result>>, MonoSink<Result>>> transactionQueue = Flux.create(emitter -> this.transactionQueue = emitter);
         transactionQueue.window(Duration.ofSeconds(60)).flatMap(win -> {
-        	return win.next().doOnNext(first -> {
-    			Mono.from(this.factory.create()).flatMap(con -> {
+        	return win.next().flatMap(first -> {
+    			return Mono.from(this.factory.create()).flatMap(con -> {
     				return first.getT1().apply(con).doOnSuccess((Result result) -> first.getT2().success(result)).thenReturn(con);
     			}).flatMap(con -> {
     				return win.flatMap(tran -> {
 						return tran.getT1().apply(con).doOnSuccess((Result result) -> tran.getT2().success(result));
     				}).then(Mono.just(con));
-    			}).doOnNext(c -> c.close()).subscribe();
+    			}).doOnNext(c -> c.close());
         	});
         }).subscribe();
     }
