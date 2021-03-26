@@ -19,13 +19,14 @@ public class DatabaseManager {
         Flux<Tuple2<Function<Connection, Mono<? extends Result>>, MonoSink<Result>>> transactionQueue = Flux.create(emitter -> this.transactionQueue = emitter);
         transactionQueue.window(Duration.ofSeconds(60)).flatMap(win -> {
         	//return win.next().flatMap(first -> {
-    			return Mono.from(this.factory.create())/*.flatMap(con -> {
+    			return Mono.from(this.factory.create()).cache()/*.flatMap(con -> {
     				return first.getT1().apply(con).doOnSuccess((Result result) -> first.getT2().success(result)).thenReturn(con);
     			})*/.flatMap(con -> {
     				return win.flatMap(tran -> {
 						return tran.getT1().apply(con).doOnSuccess((Result result) -> tran.getT2().success(result));
     				}).then(Mono.just(con));
-    			}).doOnNext(c -> c.close());
+    			}).doOnSuccess(c -> c.close())
+    			.doOnError(t -> t.printStackTrace());
         	//});
         }).subscribe();
     }
