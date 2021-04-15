@@ -23,7 +23,7 @@ public class FileConfig implements Config {
     /**
      * The folder where all configs should be saved in.
      */
-    @NotNull public static final String CONFIG_FOLDER = "config\\";
+    @NotNull public static final String CONFIG_FOLDER = "config" + File.separator;
     /**
      * The suffix of the file. Should be either *.yml or *.yaml.
      */
