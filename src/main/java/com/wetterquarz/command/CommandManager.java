@@ -22,7 +22,7 @@ public class CommandManager {
 
         discordClient.getEventDispatcher().on(MessageCreateEvent.class).flatMap(event -> {
             Message message = event.getMessage();
-            List<String> args = Arrays.asList(message.getContent().split(" "));
+            List<String> args = Arrays.asList(message.getContent().toLowerCase().split(" "));
 
             Command command = commandMap.get(args.get(0));
             if(command != null){
@@ -82,7 +82,7 @@ public class CommandManager {
 
     public void registerCommand(Command command){
         String prefix = command.getPrefix();
-        this.commandMap.put(prefix + command.getName(), command);
-        command.getAliases().forEach(s -> this.commandMap.put(prefix + s.split(" ")[0], command));
+        this.commandMap.put(prefix + command.getName().toLowerCase(), command);
+        command.getAliases().forEach(s -> this.commandMap.put(prefix + s.split(" ")[0].toLowerCase(), command));
     }
 }
