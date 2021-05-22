@@ -22,9 +22,9 @@ public class CommandManager {
 
         discordClient.getEventDispatcher().on(MessageCreateEvent.class).flatMap(event -> {
             Message message = event.getMessage();
-            List<String> args = Arrays.asList(message.getContent().toLowerCase().split(" "));
+            List<String> args = Arrays.asList(message.getContent().split(" "));
 
-            Command command = commandMap.get(args.get(0));
+            Command command = commandMap.get(args.get(0).toLowerCase());
             if(command != null){
                 if(message.getAuthor().isPresent()
                         && (command.canBotSend()
@@ -33,26 +33,26 @@ public class CommandManager {
                     Tuple2<CommandSegment, Integer> commandSegmentIntegerPair =
                             getLastCommandSegment(command, args, 1);
 
-                    if(event.getGuildId().orElse(null) == null)
-                        return message.getChannel().flatMap(messageChannel ->
-                                commandSegmentIntegerPair.getT1().commandExecutable.execute(
-                                        args.subList(0, commandSegmentIntegerPair.getT2()).toArray(new String[0]),
-                                        args.subList(commandSegmentIntegerPair.getT2(), args.size()).toArray(new String[0]),
-                                        message.getAuthor().get(),
-                                        command,
-                                        messageChannel,
-                                        messageChannel.getClient())
-                                        .then());
-                    else
-                        return message.getChannel().flatMap(messageChannel ->
-                                commandSegmentIntegerPair.getT1().commandExecutable.execute(
-                                        args.subList(0, commandSegmentIntegerPair.getT2()).toArray(new String[0]),
-                                        args.subList(commandSegmentIntegerPair.getT2(), args.size()).toArray(new String[0]),
-                                        event.getMember().get(),
-                                        command,
-                                        messageChannel,
-                                        messageChannel.getClient()))
-                                .then();
+
+                    return event.getMember().isEmpty()
+                            ? message.getChannel().flatMap(messageChannel ->
+                            commandSegmentIntegerPair.getT1().commandExecutable.execute(
+                                    args.subList(0, commandSegmentIntegerPair.getT2()).toArray(new String[0]),
+                                    args.subList(commandSegmentIntegerPair.getT2(), args.size()).toArray(new String[0]),
+                                    message.getAuthor().get(),
+                                    command,
+                                    messageChannel,
+                                    messageChannel.getClient())
+                                    .then())
+                            : message.getChannel().flatMap(messageChannel ->
+                            commandSegmentIntegerPair.getT1().commandExecutable.execute(
+                                    args.subList(0, commandSegmentIntegerPair.getT2()).toArray(new String[0]),
+                                    args.subList(commandSegmentIntegerPair.getT2(), args.size()).toArray(new String[0]),
+                                    event.getMember().get(),
+                                    command,
+                                    messageChannel,
+                                    messageChannel.getClient()))
+                            .then();
                 }
             }
             return Mono.empty();
@@ -64,7 +64,7 @@ public class CommandManager {
             return Tuples.of(segment, i);
 
         try{
-            CommandSegment commandSegment = segment.commandSegments.get(args.get(i));
+            CommandSegment commandSegment = segment.commandSegments.get(args.get(i).toLowerCase());
 
             if(commandSegment == null)
                 return Tuples.of(segment, i);
