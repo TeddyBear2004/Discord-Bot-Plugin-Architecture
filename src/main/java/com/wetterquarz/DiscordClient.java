@@ -49,8 +49,15 @@ public class DiscordClient {
         this.config = config;
 
         this.pluginManager = new PluginManager();
+        this.pluginManager.reload();
 
-        GatewayDiscordClient gatewayDiscordClient = DiscordClientBuilder.create(config.getString("token")).build().login().block();
+        GatewayDiscordClient gatewayDiscordClient = DiscordClientBuilder
+                .create(config.getString("token"))
+                .build()
+                .gateway()
+                .setEnabledIntents(this.pluginManager.getIntents())
+                .login()
+                .block();
 
         if(Objects.isNull(gatewayDiscordClient))
             throw new InputMismatchException("Cannot build the gateway discord client");
@@ -84,7 +91,6 @@ public class DiscordClient {
 
     public static void main(String[] args){
         DiscordClient discordClient = getDiscordClient();
-		discordClient.getPluginManager().reload();
 
         discordClient.gatewayDiscordClient.onDisconnect().block();
         System.exit(0);
