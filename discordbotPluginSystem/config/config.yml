@@ -1,8 +1,0 @@
-token: ***REMOVED***
-database:
-  password: ***REMOVED***
-  database: ***REMOVED***
-  port: 3306
-  host: ***REMOVED***
-  user: ***REMOVED***
-prefix: '!'
