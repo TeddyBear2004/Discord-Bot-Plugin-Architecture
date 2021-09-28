@@ -1,0 +1,8 @@
+token: NTg2MTc5NTY3MzkyMjYwMDk2.XPkQQw.SXRd4O2pthQmQSdaio59iqXhwco
+database:
+  password: MkisnqGE#L4
+  database: c8PluginDatabase
+  port: 3306
+  host: isp.wiipe.net
+  user: c8PluginBot
+prefix: '!'
