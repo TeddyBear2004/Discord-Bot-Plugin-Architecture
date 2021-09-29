@@ -1,15 +1,11 @@
 package com.wetterquarz.plugin;
 
-import discord4j.gateway.intent.IntentSet;
-import org.jetbrains.annotations.NotNull;
-
 public class PluginMetadata {
 
 	private Plugin plugin;
 	private String name;
 	private String label;
 	private String version;
-	private @NotNull IntentSet intents = IntentSet.none();
 	Plugin getPlugin() {
 		return plugin;
 	}
@@ -33,11 +29,5 @@ public class PluginMetadata {
 	}
 	void setVersion(String version) {
 		this.version = version;
-	}
-    @NotNull IntentSet getIntents(){
-		return intents;
-	}
-	public void setIntents(@NotNull IntentSet intents){
-		this.intents = intents;
 	}
 }

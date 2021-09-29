@@ -1,23 +1,24 @@
 package com.wetterquarz.plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-
+import com.wetterquarz.config.FileConfig;
+import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import com.wetterquarz.config.FileConfig;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 public class PluginManager {
-    public static final File PLUGIN_FOLDER = new File("./plugins");
+    public static final @NotNull File PLUGIN_FOLDER = new File("./plugins");
 
     static{
         if(!PLUGIN_FOLDER.exists() || !PLUGIN_FOLDER.isDirectory())
@@ -35,6 +36,37 @@ public class PluginManager {
                 pm.getPlugin().onUnload();
             });
         }));
+    }
+
+    public IntentSet loadIntents(){
+        IntentSet intents = IntentSet.none();
+        for(File file : PluginManager.PLUGIN_FOLDER.listFiles()){
+            if(file.getName().endsWith(".jar")){
+                try(JarFile jar = new JarFile(file)){
+                    ZipEntry pluginConfig = jar.getEntry("plugin.yml");
+                    if(pluginConfig == null){
+                        LOGGER.error(jar.getName() + " does not contain a plugin.yml");
+                        return null;
+                    }
+                    FileConfig config = new FileConfig(jar.getInputStream(pluginConfig));
+                    List<?> rawIntents = config.getList("intents");
+                    IntentSet intentSet = IntentSet.none();
+
+                    if(rawIntents != null){
+                        for(Object rawIntent : rawIntents){
+                            String s = rawIntent.toString();
+                            IntentSet cache = IntentSet.of(Intent.valueOf(s));
+
+                            intents = intents.or(cache);
+                        }
+                    }
+
+                }catch(IOException e){
+                    LOGGER.warn(e);
+                }
+            }
+        }
+        return intents;
     }
 
     public void reload(){
@@ -95,7 +127,6 @@ public class PluginManager {
                 meta.setName(name);
                 meta.setVersion(version);
                 meta.setPlugin(p);
-                meta.setIntents(p.getIntents());
                 if(label != null)
                     meta.setLabel(label);
                 return meta;
@@ -106,13 +137,5 @@ public class PluginManager {
             LOGGER.error(jar.getName() + " points to an invalid main class.");
         }
         return null;
-    }
-
-    public IntentSet getIntents(){
-        IntentSet intents = IntentSet.none();
-
-        this.plugins.values().forEach(pluginMetadata -> intents.addAll(pluginMetadata.getIntents()));
-
-        return intents;
     }
 }

@@ -1,10 +1,7 @@
 package com.wetterquarz.plugin;
 
-import discord4j.gateway.intent.Intent;
-import discord4j.gateway.intent.IntentSet;
-import org.apache.log4j.Logger;
-
 import com.wetterquarz.config.FileConfig;
+import org.apache.log4j.Logger;
 
 public class Plugin {
 
@@ -27,9 +24,4 @@ public class Plugin {
     public void onLoad(){}
 
     public void onUnload(){}
-
-    public IntentSet getIntents(){
-        return IntentSet.none();
-    }
-
 }
