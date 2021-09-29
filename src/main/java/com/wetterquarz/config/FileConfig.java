@@ -377,6 +377,9 @@ public class FileConfig implements Config {
 
         Object o = get(key);
 
+        if(o == null)
+            return null;
+
         if(o instanceof List){
             List<?> list = (List<?>)o;
 
