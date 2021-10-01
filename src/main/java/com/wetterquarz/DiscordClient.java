@@ -8,6 +8,7 @@ import com.wetterquarz.plugin.PluginManager;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
+import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.logging.Logger;
 
 import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
@@ -26,7 +26,7 @@ public class DiscordClient {
         FileConfig config = new FileConfig("config");
 
         config.setDefault("token", "set here the token!");
-        config.setDefault("intents", Arrays.asList());
+        config.setDefault("intents", List.of());
         config.setDefault("prefix", "!");
         Map<String, Object> databaseOption = new HashMap<>();
         databaseOption.put("host", "set db host here");
@@ -53,6 +53,7 @@ public class DiscordClient {
 
         this.pluginManager = new PluginManager();
         IntentSet intents = this.pluginManager.loadIntents();
+        intents = intents.or(IntentSet.of(Intent.GUILD_MESSAGES));
 
         System.out.println("Starting discord bot with following intents: " + intents);
 
