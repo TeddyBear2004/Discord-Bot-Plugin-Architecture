@@ -24,7 +24,7 @@ public class CommandManager {
             Message message = event.getMessage();
             List<String> args = Arrays.asList(message.getContent().toLowerCase().split(" "));
 
-            Command command = commandMap.get(args.get(0).toLowerCase());
+            Command command = commandMap.get(args.get(0));
             if(command != null){
                 if(message.getAuthor().isPresent()
                         && (command.canBotSend()
@@ -64,7 +64,7 @@ public class CommandManager {
             return Tuples.of(segment, i);
 
         try{
-            CommandSegment commandSegment = segment.getCommandSegmentsLowerCase().get(args.get(i));
+            CommandSegment commandSegment = segment.getCommandSegmentsLowerCase().get(args.get(i).toLowerCase());
 
             if(commandSegment == null)
                 return Tuples.of(segment, i);
