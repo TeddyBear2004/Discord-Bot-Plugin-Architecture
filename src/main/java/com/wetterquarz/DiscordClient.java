@@ -26,7 +26,6 @@ public class DiscordClient {
         FileConfig config = new FileConfig("config");
 
         config.setDefault("token", "set here the token!");
-        config.setDefault("intents", List.of());
         config.setDefault("prefix", "!");
         Map<String, Object> databaseOption = new HashMap<>();
         databaseOption.put("host", "set db host here");
