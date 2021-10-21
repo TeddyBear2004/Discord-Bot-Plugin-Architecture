@@ -6,6 +6,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
@@ -16,8 +17,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class CommandManager {
-    private final Map<String, Command> commandMap;
-    private Command helpCommand;
+    private final @NotNull Map<String, Command> commandMap;
+    private @Nullable Command helpCommand;
 
     public CommandManager(@NotNull GatewayDiscordClient discordClient){
         this.commandMap = new TreeMap<>();
@@ -68,7 +69,7 @@ public class CommandManager {
         return ImmutableMap.copyOf(commandMap);
     }
 
-    private Tuple2<CommandSegment, Integer> getLastCommandSegment(@NotNull CommandSegment segment, @NotNull List<String> args, int i){
+    private @NotNull Tuple2<CommandSegment, Integer> getLastCommandSegment(@NotNull CommandSegment segment, @NotNull List<String> args, int i){
         if(segment.getCommandSegmentsLowerCase() == null)
             return Tuples.of(segment, i);
 
@@ -92,7 +93,7 @@ public class CommandManager {
      *
      * @param commands The commands to be added. Should be build with the {@link CommandBuilder}
      * @return true if all commands and subcommands are added.
-     * @throws IllegalArgumentException If either a command name or an alias is named "help".
+     * @throws IllegalArgumentException If either a command name or an alias is named "help" (see {@link CommandManager#setHelpCommand(Command)}).
      */
     public boolean registerCommands(@NotNull Command... commands) throws IllegalArgumentException{
         boolean allAdded = true;
@@ -109,7 +110,7 @@ public class CommandManager {
      *
      * @param command The command to be added. Should be build with the {@link CommandBuilder}
      * @return True if the command and all subcommands are added.
-     * @throws IllegalArgumentException If either the command name or an alias is named "help".
+     * @throws IllegalArgumentException If either the command name or an alias is named "help" (see {@link CommandManager#setHelpCommand(Command)}).
      */
     public boolean registerCommand(@NotNull Command command) throws IllegalArgumentException{
         String prefix = command.getPrefix();
@@ -142,7 +143,7 @@ public class CommandManager {
         return allAdded;
     }
 
-    public void setHelpCommand(@NotNull Command command){
+    public void setHelpCommand(@Nullable Command command){
         this.helpCommand = command;
     }
 }

@@ -6,6 +6,7 @@ import discord4j.gateway.intent.IntentSet;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,10 +26,8 @@ public class PluginManager {
             PLUGIN_FOLDER.mkdir();
     }
 
-    @NotNull
-    private static final Logger LOGGER = LogManager.getLogger(PluginManager.class.getName());
-    @NotNull
-    private Map<String, PluginMetadata> plugins = new HashMap<>();
+    private static final @NotNull Logger LOGGER = LogManager.getLogger(PluginManager.class.getName());
+    private @NotNull Map<String, PluginMetadata> plugins = new HashMap<>();
 
     public PluginManager(){
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -38,7 +37,7 @@ public class PluginManager {
         }));
     }
 
-    public IntentSet loadIntents(){
+    public @NotNull IntentSet loadIntents(){
         IntentSet intents = IntentSet.none();
         for(File file : PluginManager.PLUGIN_FOLDER.listFiles()){
             if(file.getName().endsWith(".jar")){
@@ -94,7 +93,7 @@ public class PluginManager {
         }
     }
 
-    private PluginMetadata loadJar(JarFile jar, URL jarLoc) throws IOException{
+    private @Nullable PluginMetadata loadJar(@NotNull JarFile jar, @NotNull URL jarLoc) throws IOException{
         ZipEntry pluginConfig = jar.getEntry("plugin.yml");
         if(pluginConfig == null){
             LOGGER.error(jar.getName() + " does not contain a plugin.yml");
