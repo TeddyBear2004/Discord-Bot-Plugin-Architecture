@@ -3,7 +3,7 @@ package com.wetterquarz.plugin;
 import com.wetterquarz.config.FileConfig;
 import org.apache.log4j.Logger;
 
-public class Plugin {
+public abstract class Plugin {
 
     Logger logger;
 
