@@ -27,4 +27,6 @@ public abstract class Plugin {
     public void onLoad(){}
 
     public void onUnload(){}
+
+    public @Nullable CommandExecutable getHelpCommand(){return null;}
 }
