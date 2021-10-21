@@ -28,7 +28,7 @@ public class DatabaseManager {
 	    			.doOnError(callback::error)
 	    			.doOnSuccess(callback::success)
 	    			.subscribe();
-    		});
+    		}).start();
     	});
     }
     
