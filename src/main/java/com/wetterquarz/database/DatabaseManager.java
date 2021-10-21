@@ -24,9 +24,9 @@ public class DatabaseManager {
 	    		Mono.from(this.factory.create())
 	    			.doOnError(ignore -> simulConnections.release())
 	    			.flatMap(c -> transaction.apply(c)
-	    					.doOnTerminate(() -> Mono.from(c.close()).doOnTerminate(() -> simulConnections.release()).subscribe()))
-	    			.doOnError(t -> callback.error(t))
-	    			.doOnSuccess(r -> callback.success(r))
+	    					.doOnTerminate(() -> Mono.from(c.close()).doOnTerminate(simulConnections::release).subscribe()))
+	    			.doOnError(callback::error)
+	    			.doOnSuccess(callback::success)
 	    			.subscribe();
     		});
     	});
