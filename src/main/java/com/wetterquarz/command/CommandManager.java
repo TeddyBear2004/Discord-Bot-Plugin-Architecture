@@ -37,25 +37,15 @@ public class CommandManager {
                             getLastCommandSegment(command, args, 1);
 
 
-                    return event.getMember().isEmpty()
-                            ? message.getChannel().flatMap(messageChannel ->
+                    return message.getChannel().flatMap(messageChannel ->
                             commandSegmentIntegerPair.getT1().getExecutableCommand().execute(
-                                            args.subList(0, commandSegmentIntegerPair.getT2()).toArray(new String[0]),
-                                            args.subList(commandSegmentIntegerPair.getT2(), args.size()).toArray(new String[0]),
-                                            message.getAuthor().get(),
-                                            command,
-                                            messageChannel,
-                                            messageChannel.getClient())
-                                    .then())
-                            : message.getChannel().flatMap(messageChannel ->
-                                    commandSegmentIntegerPair.getT1().getExecutableCommand().execute(
-                                            args.subList(0, commandSegmentIntegerPair.getT2()).toArray(new String[0]),
-                                            args.subList(commandSegmentIntegerPair.getT2(), args.size()).toArray(new String[0]),
-                                            event.getMember().get(),
-                                            command,
-                                            messageChannel,
-                                            messageChannel.getClient()))
-                            .then();
+                                    args.subList(0, commandSegmentIntegerPair.getT2()).toArray(new String[0]),
+                                    args.subList(commandSegmentIntegerPair.getT2(), args.size()).toArray(new String[0]),
+                                    event.getMember().isEmpty() ? message.getAuthor().get() : event.getMember().get(),
+                                    command,
+                                    messageChannel,
+                                    messageChannel.getClient()
+                                    ));
                 }
             }
             return Mono.empty();
