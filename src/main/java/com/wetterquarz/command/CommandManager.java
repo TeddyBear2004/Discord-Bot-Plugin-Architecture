@@ -1,6 +1,7 @@
 package com.wetterquarz.command;
 
 import com.google.common.collect.ImmutableMap;
+import com.wetterquarz.command.help.HelpCommand;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
@@ -21,13 +22,30 @@ public class CommandManager {
     private @Nullable Command helpCommand;
 
     public CommandManager(@NotNull GatewayDiscordClient discordClient){
+        setHelpCommand(new HelpCommand());
         this.commandMap = new TreeMap<>();
 
         discordClient.getEventDispatcher().on(MessageCreateEvent.class).flatMap(event -> {
             Message message = event.getMessage();
             List<String> args = Arrays.asList(message.getContent().toLowerCase().split(" "));
+            if(args.get(0).equals("help")){
+                if(helpCommand == null)
+                    return Mono.empty();
 
-            Command command = args.get(0).equals("help") ? this.helpCommand : commandMap.get(args.get(0));
+                return event.getMessage().getChannel()
+                        .flatMap(channel ->
+                                helpCommand
+                                        .getExecutableCommand()
+                                        .execute(args.subList(0, 1)
+                                                        .toArray(new String[0]),
+                                                args.subList(1, args.size()).toArray(new String[0]),
+                                                event.getMember().isEmpty() ? message.getAuthor().get() : event.getMember().get(),
+                                                null,
+                                                channel,
+                                                discordClient));
+            }
+
+            Command command = commandMap.get(args.get(0));
             if(command != null){
                 if(message.getAuthor().isPresent()
                         && (command.canBotSend()
@@ -45,7 +63,7 @@ public class CommandManager {
                                     command,
                                     messageChannel,
                                     messageChannel.getClient()
-                                    ));
+                            ));
                 }
             }
             return Mono.empty();
@@ -131,6 +149,10 @@ public class CommandManager {
         }
 
         return allAdded;
+    }
+
+    public void setHelpCommand(@NotNull CommandExecutable helpCommand){
+        this.helpCommand = new CommandBuilder("help", new HelpCommand()).build();
     }
 
     public void setHelpCommand(@Nullable Command command){
