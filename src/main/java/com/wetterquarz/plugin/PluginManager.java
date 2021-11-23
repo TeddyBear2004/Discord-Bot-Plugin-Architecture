@@ -1,5 +1,6 @@
 package com.wetterquarz.plugin;
 
+import com.google.common.collect.ImmutableMap;
 import com.wetterquarz.config.FileConfig;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
+import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 
 public class PluginManager {
@@ -35,6 +37,10 @@ public class PluginManager {
                 pm.getPlugin().onUnload();
             });
         }));
+    }
+
+    public @NotNull Map<String, PluginMetadata> getPlugins(){
+        return ImmutableMap.copyOf(plugins);
     }
 
     public @NotNull IntentSet loadIntents(){
