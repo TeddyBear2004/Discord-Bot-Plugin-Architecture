@@ -29,7 +29,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
         if(name.contains(" "))
             throw new IllegalArgumentException("You may not use spaces within the name.");
 
-        this.prefix = DiscordClient.getDiscordClient().getConfig().getString("prefix");
+        this.prefix = DiscordClient.getConfig().getString("prefix");
 
         this.canBotSend = false;
     }
@@ -52,7 +52,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
      * @return the new {@link CommandBuilder} object
      */
     public @NotNull CommandBuilder withPrefix(@Nullable String prefix){
-        this.prefix = prefix == null ? DiscordClient.getDiscordClient().getConfig().getString("prefix") : prefix;
+        this.prefix = prefix == null ? DiscordClient.getConfig().getString("prefix") : prefix;
         return this;
     }
 

@@ -21,9 +21,10 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 public class DiscordClient {
     @NotNull private static final DiscordClient discordClient;
+    @NotNull private static final Config config;
 
     static{
-        FileConfig config = new FileConfig("config");
+        config = new FileConfig("config");
 
         config.setDefault("token", "set here the token!");
         config.setDefault("prefix", "!");
@@ -45,10 +46,8 @@ public class DiscordClient {
     private final @NotNull PluginManager pluginManager;
     private final @Nullable DatabaseManager databaseManager;
     private final @NotNull GatewayDiscordClient gatewayDiscordClient;
-    private final @NotNull Config config;
 
     private DiscordClient(@NotNull Config config){
-        this.config = config;
 
         this.pluginManager = new PluginManager();
         IntentSet intents = this.pluginManager.loadIntents();
@@ -108,6 +107,10 @@ public class DiscordClient {
         return discordClient;
     }
 
+    public static @NotNull Config getConfig(){
+        return config;
+    }
+
     public @NotNull EventDispatcher getEventDispatcher(){
         return gatewayDiscordClient.getEventDispatcher();
     }
@@ -122,10 +125,6 @@ public class DiscordClient {
 
     public @NotNull CommandManager getCommandManager(){
         return commandManager;
-    }
-
-    public @NotNull Config getConfig(){
-        return config;
     }
 
     public @NotNull GatewayDiscordClient getGatewayDiscordClient(){
