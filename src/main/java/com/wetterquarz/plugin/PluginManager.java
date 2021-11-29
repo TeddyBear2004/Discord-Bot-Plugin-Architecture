@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
-import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 
 public class PluginManager {
@@ -82,10 +81,10 @@ public class PluginManager {
                 try(JarFile jar = new JarFile(file)){
                     PluginMetadata pluginMeta = loadJar(jar, file.toURI().toURL());
                     if(pluginMeta != null){
-                        if(plugins.containsKey(pluginMeta.getName())){
+                        if(plugins.containsKey(pluginMeta.getName().toLowerCase())){
                             LOGGER.error(pluginMeta.getName() + " already exists.");
                         }else{
-                            plugins.put(pluginMeta.getName(), pluginMeta);
+                            plugins.put(pluginMeta.getName().toLowerCase(), pluginMeta);
                             pluginMeta.getPlugin().logger = LogManager.getLogger(pluginMeta.getName());
                             pluginMeta.getPlugin().config = new FileConfig(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
                             pluginMeta.getPlugin().onLoad();

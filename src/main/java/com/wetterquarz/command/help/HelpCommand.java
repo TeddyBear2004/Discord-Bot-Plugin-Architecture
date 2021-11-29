@@ -19,19 +19,29 @@ public class HelpCommand implements CommandExecutable {
     public @NotNull Mono<Message> execute(@NotNull String[] usedAlias, @NotNull String[] args, @NotNull User executor, @Nullable Command rootCommand, @NotNull MessageChannel channel, @NotNull GatewayDiscordClient discordClient){
         var plugins = DiscordClient.getDiscordClient().getPluginManager().getPlugins();
         if(args.length != 0){
-            for(String s : plugins.keySet())
-                if(args[0].equals(s)){
-                    var metadata = plugins.get(s);
-                    if(metadata.getPlugin().getHelpCommand() != null)
+            for(String s : plugins.keySet()){
+                if(args[0].equalsIgnoreCase(s)){
+                    var metadata = plugins.get(s.toLowerCase());
+                    if(metadata.getPlugin().getHelpCommand() != null){
                         return metadata.getPlugin().getHelpCommand().execute(usedAlias, args, executor, rootCommand, channel, discordClient);
+                    }else {
+                        return channel.createMessage("No help available for this plugin");
+                    }
                 }
+            }
         }
-        var builder = EmbedCreateSpec.builder()
-                .color(Color.of(0, 0, 0.52f))
-                .author("Plugin-Commands", null, "https://cdn.discordapp.com/avatars/" + discordClient.getSelfId().asLong() + "/90295cd0172896b8bb57c49973af18d4.webp?size=4096");
 
-        plugins.forEach((s, pluginMetadata) ->
-                builder.addField(pluginMetadata.getName(), "``\nVersion:" + pluginMetadata.getVersion() + "``", true));
-        return channel.createMessage(builder.build());
+        return discordClient.getSelf()
+                .map(User::getAvatarUrl)
+                .flatMap(avatarUrl -> {
+
+                    var builder = EmbedCreateSpec.builder()
+                            .color(Color.of(0, 0, 0.52f))
+                            .author("Plugin-Commands", null, avatarUrl);
+
+                    plugins.forEach((s, pluginMetadata) ->
+                            builder.addField(pluginMetadata.getName(), "!help " + pluginMetadata.getName().replaceAll(" ", "") + "\n``Version:" + pluginMetadata.getVersion() + "``", true));
+                    return channel.createMessage(builder.build());
+                });
     }
 }

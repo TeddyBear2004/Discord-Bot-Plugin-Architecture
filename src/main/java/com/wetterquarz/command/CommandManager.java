@@ -28,7 +28,7 @@ public class CommandManager {
         discordClient.getEventDispatcher().on(MessageCreateEvent.class).flatMap(event -> {
             Message message = event.getMessage();
             List<String> args = Arrays.asList(message.getContent().toLowerCase().split(" "));
-            if(args.get(0).equals("help")){
+            if(helpCommand != null && args.get(0).equalsIgnoreCase(helpCommand.getPrefix() + "help")){
                 if(helpCommand == null)
                     return Mono.empty();
 
