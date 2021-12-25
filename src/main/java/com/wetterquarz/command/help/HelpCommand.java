@@ -24,7 +24,7 @@ public class HelpCommand implements CommandExecutable {
                     var metadata = plugins.get(s.toLowerCase());
                     if(metadata.getPlugin().getHelpCommand() != null){
                         return metadata.getPlugin().getHelpCommand().execute(usedAlias, args, executor, rootCommand, channel, discordClient);
-                    }else {
+                    }else{
                         return channel.createMessage("No help available for this plugin");
                     }
                 }
@@ -40,7 +40,11 @@ public class HelpCommand implements CommandExecutable {
                             .author("Plugin-Commands", null, avatarUrl);
 
                     plugins.forEach((s, pluginMetadata) ->
-                            builder.addField(pluginMetadata.getName(), "!help " + pluginMetadata.getName().replaceAll(" ", "") + "\n``Version:" + pluginMetadata.getVersion() + "``", true));
+                            builder.addField(pluginMetadata.getName(),
+                                    "!help " + pluginMetadata.getName().replaceAll(" ", "")
+                                            + "\n" + pluginMetadata.getDescription()
+                                            + "\n``Version:" + pluginMetadata.getVersion() + "``",
+                                    true));
                     return channel.createMessage(builder.build());
                 });
     }
