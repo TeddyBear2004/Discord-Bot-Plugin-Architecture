@@ -372,13 +372,14 @@ public class FileConfig implements Config {
      * @param key The key of the value
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
+     * @throws NoSuchElementException If the value is null or not set.
      */
     public @Nullable List<?> getList(@NotNull String key){
 
         Object o = get(key);
 
         if(o == null)
-            return null;
+            throw new NoSuchElementException();
 
         if(o instanceof List){
             List<?> list = (List<?>)o;
