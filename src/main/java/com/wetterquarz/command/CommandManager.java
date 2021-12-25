@@ -89,9 +89,23 @@ public class CommandManager {
     public boolean registerCommands(@NotNull Command... commands) throws IllegalArgumentException{
         boolean allAdded = true;
         for(Command command : commands)
-            allAdded = registerCommand(command) && allAdded;
+            allAdded = registerResultedCommand(command) && allAdded;
 
         return allAdded;
+    }
+    /**
+     * Registers a command to the command listener. If a command has already been added,
+     * this is output as an error and the return of the method is false. If a command has already
+     * been added, all other commands will continue to try to be added.
+     * <br />
+     *
+     * @deprecated Use {@link CommandManager#registerResultedCommand(Command)} instead.
+     * @param command The command to be added. Should be build with the {@link CommandBuilder}
+     * @throws IllegalArgumentException If either the command name or an alias is named "help" (see {@link CommandManager#setHelpCommand(Command)}).
+     */
+    @Deprecated
+    public void registerCommand(Command command){
+        registerResultedCommand(command);
     }
 
     /**
@@ -103,7 +117,7 @@ public class CommandManager {
      * @return True if the command and all subcommands are added.
      * @throws IllegalArgumentException If either the command name or an alias is named "help" (see {@link CommandManager#setHelpCommand(Command)}).
      */
-    public boolean registerCommand(@NotNull Command command) throws IllegalArgumentException{
+    public boolean registerResultedCommand(@NotNull Command command) throws IllegalArgumentException{
         String prefix = command.getPrefix();
         boolean allAdded = true;
 

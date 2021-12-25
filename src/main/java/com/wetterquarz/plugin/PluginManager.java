@@ -51,7 +51,12 @@ public class PluginManager {
                         return null;
                     }
                     FileConfig config = new FileConfig(jar.getInputStream(pluginConfig));
-                    List<?> rawIntents = config.getList("intents");
+                    List<?> rawIntents;
+                    try{
+                        rawIntents = config.getList("intents");
+                    }catch(NoSuchElementException e){
+                        rawIntents = Collections.emptyList();
+                    }
                     IntentSet intentSet = IntentSet.none();
 
                     if(rawIntents != null){
