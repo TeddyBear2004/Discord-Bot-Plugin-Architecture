@@ -13,9 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -109,6 +107,12 @@ public class PluginManager {
         String name = config.getString("name");
         String label = config.getString("label");
         String version = config.getString("version");
+        String description;
+        try{
+            description = config.getString("description");
+        }catch(NoSuchElementException e){
+            description = "No description provided.";
+        }
 
         if(main == null || name == null || version == null){
             LOGGER.error(jar.getName() + "'s plugin.yml does not contain main, name or version entries.");
@@ -133,6 +137,8 @@ public class PluginManager {
                 meta.setPlugin(p);
                 if(label != null)
                     meta.setLabel(label);
+                meta.setDescription(description);
+
                 return meta;
             }catch(IllegalAccessException | InstantiationException e){
                 LOGGER.error(jar.getName() + "'s main class does not have an accessible default constructor.");

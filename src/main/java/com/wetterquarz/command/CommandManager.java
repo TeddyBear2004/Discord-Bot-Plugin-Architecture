@@ -1,6 +1,7 @@
 package com.wetterquarz.command;
 
 import com.google.common.collect.ImmutableMap;
+import com.wetterquarz.DiscordClient;
 import com.wetterquarz.command.help.HelpCommand;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -19,31 +20,14 @@ import java.util.TreeMap;
 
 public class CommandManager {
     private final @NotNull Map<String, Command> commandMap;
-    private @Nullable Command helpCommand;
 
     public CommandManager(@NotNull GatewayDiscordClient discordClient){
-        setHelpCommand(new HelpCommand());
         this.commandMap = new TreeMap<>();
+        setHelpCommand(new HelpCommand());
 
         discordClient.getEventDispatcher().on(MessageCreateEvent.class).flatMap(event -> {
             Message message = event.getMessage();
             List<String> args = Arrays.asList(message.getContent().toLowerCase().split(" "));
-            if(helpCommand != null && args.get(0).equalsIgnoreCase(helpCommand.getPrefix() + "help")){
-                if(helpCommand == null)
-                    return Mono.empty();
-
-                return event.getMessage().getChannel()
-                        .flatMap(channel ->
-                                helpCommand
-                                        .getExecutableCommand()
-                                        .execute(args.subList(0, 1)
-                                                        .toArray(new String[0]),
-                                                args.subList(1, args.size()).toArray(new String[0]),
-                                                event.getMember().isEmpty() ? message.getAuthor().get() : event.getMember().get(),
-                                                null,
-                                                channel,
-                                                discordClient));
-            }
 
             Command command = commandMap.get(args.get(0));
             if(command != null){
@@ -53,7 +37,6 @@ public class CommandManager {
                         .orElse(false))){
                     Tuple2<CommandSegment, Integer> commandSegmentIntegerPair =
                             getLastCommandSegment(command, args, 1);
-
 
                     return message.getChannel().flatMap(messageChannel ->
                             commandSegmentIntegerPair.getT1().getExecutableCommand().execute(
@@ -152,10 +135,11 @@ public class CommandManager {
     }
 
     public void setHelpCommand(@NotNull CommandExecutable helpCommand){
-        this.helpCommand = new CommandBuilder("help", new HelpCommand()).build();
+        Command help = new CommandBuilder("help", helpCommand).build();
+        setHelpCommand(help);
     }
 
-    public void setHelpCommand(@Nullable Command command){
-        this.helpCommand = command;
+    public void setHelpCommand(@NotNull Command helpCommand){
+        this.commandMap.put(helpCommand.getPrefix() + "help", helpCommand);
     }
 }
