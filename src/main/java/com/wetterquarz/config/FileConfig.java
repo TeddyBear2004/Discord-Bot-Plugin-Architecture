@@ -23,37 +23,45 @@ public class FileConfig implements Config {
     /**
      * The folder where all configs should be saved in.
      */
-    @NotNull public static final String CONFIG_FOLDER = "config" + File.separator;
+    @NotNull
+    public static final String CONFIG_FOLDER = "config" + File.separator;
     /**
      * The suffix of the file. Should be either *.yml or *.yaml.
      */
-    @NotNull public static final String CONFIG_FILE_SUFFIX = ".yml";
+    @NotNull
+    public static final String CONFIG_FILE_SUFFIX = ".yml";
     /**
      * A Logger of this class.
      */
-    @NotNull private static final Logger LOGGER = LogManager.getLogger(FileConfig.class.getName());
+    @NotNull
+    private static final Logger LOGGER = LogManager.getLogger(FileConfig.class.getName());
     /**
      * The file of the config. Can either be set with the name or directly be set.
      * If this field is null the object is created with an input stream and the object is read-only.
      */
-    @Nullable private final File file;
-    @NotNull private final Yaml yaml;
+    @Nullable
+    private final File file;
+    @NotNull
+    private final Yaml yaml;
     private final boolean isSubConfig;
     /**
      * This map contains all yaml elements of the file or those which are newly set.
      * Can be synchronised by method .save();
      */
-    @NotNull private Map<String, Object> map;
+    @NotNull
+    private Map<String, Object> map;
 
-    @Nullable private String key;
-    @Nullable private FileConfig fileConfig;
+    @Nullable
+    private String key;
+    @Nullable
+    private FileConfig fileConfig;
 
     /**
      * Create or initialise a configFile at the given location.
      *
      * @param file Where the config file is or where it should be created
      */
-    public FileConfig(@NotNull File file){
+    public FileConfig(@NotNull File file) {
         this.file = file;
 
         this.yaml = getYaml();
@@ -67,7 +75,7 @@ public class FileConfig implements Config {
      *
      * @param configFileName The config file name
      */
-    public FileConfig(@NotNull String configFileName){
+    public FileConfig(@NotNull String configFileName) {
         this(new File(CONFIG_FOLDER + configFileName + CONFIG_FILE_SUFFIX));
     }
 
@@ -86,7 +94,7 @@ public class FileConfig implements Config {
      *
      * @param in The input stream of the ConfigHandler.
      */
-    public FileConfig(@NotNull InputStream in){
+    public FileConfig(@NotNull InputStream in) {
         this.file = null;
 
         this.yaml = getYaml();
@@ -95,7 +103,7 @@ public class FileConfig implements Config {
         isSubConfig = false;
     }
 
-    private static Yaml getYaml(){
+    private static Yaml getYaml() {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 
@@ -109,16 +117,16 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setObject(@NotNull String key, Object value){
-        if(file == null && !isSubConfig)
+    public void setObject(@NotNull String key, Object value) {
+        if (file == null && !isSubConfig)
             throw new UnsupportedOperationException("This config is read-only.");
 
-        if(value.getClass() == getClass())
-            value = ((FileConfig)value).getMap();
+        if (value.getClass() == getClass())
+            value = ((FileConfig) value).getMap();
 
         int j = key.indexOf('@');
         int indexFromList = 0;
-        if(j != -1){
+        if (j != -1) {
             String s = key.substring(j);
             try{
                 indexFromList = Integer.parseInt(s);
@@ -128,16 +136,16 @@ public class FileConfig implements Config {
 
         String[] path = key.split("\\.");
 
-        if(path.length <= 1){
+        if (path.length <= 1) {
             Object o = map.get(key);
-            if(o instanceof List && indexFromList != 0)
-                ((List<Object>)o).set(indexFromList, value);
+            if (o instanceof List && indexFromList != 0)
+                ((List<Object>) o).set(indexFromList, value);
             else
                 map.put(key, value);
         }else{
             Map<String, Object> cache = map;
 
-            for(int i = 0; i < path.length - 1; i++){
+            for (int i = 0; i < path.length - 1; i++) {
                 Map<String, Object> map1 = new LinkedHashMap<>();
 
                 cache.put(path[i], map1);
@@ -145,8 +153,8 @@ public class FileConfig implements Config {
                 cache = map1;
             }
             Object o = cache.get(path[path.length - 1]);
-            if(o instanceof List && indexFromList != 0)
-                ((List<Object>)o).set(indexFromList, value);
+            if (o instanceof List && indexFromList != 0)
+                ((List<Object>) o).set(indexFromList, value);
             else
                 cache.put(path[path.length - 1], value);
         }
@@ -158,8 +166,8 @@ public class FileConfig implements Config {
      * @param objectMap The map of all entries.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setObjects(@NotNull Map<String, Object> objectMap){
-        if(file == null || !isSubConfig)
+    public void setObjects(@NotNull Map<String, Object> objectMap) {
+        if (file == null || !isSubConfig)
             throw new UnsupportedOperationException("This config is read-only.");
 
         map.forEach(this::setObject);
@@ -171,7 +179,7 @@ public class FileConfig implements Config {
      * @param objectMap The map of the entries.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefaults(@NotNull Map<String, Object> objectMap){
+    public void setDefaults(@NotNull Map<String, Object> objectMap) {
         map.forEach(this::setDefault);
     }
 
@@ -182,29 +190,29 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NotNull String key, Object value){
+    public void setDefault(@NotNull String key, Object value) {
         String[] path = key.split("\\.");
 
-        if(path.length == 1){
-            if(get(key) == null){
+        if (path.length == 1) {
+            if (get(key) == null) {
                 setObject(key, value);
             }
         }else{
             Map<String, Object> cache = map;
 
-            for(String s : path){
+            for (String s : path) {
                 Object o = cache.get(s);
 
-                if(!(o instanceof Map)){
-                    if(get(key) == null)
+                if (!(o instanceof Map)) {
+                    if (get(key) == null)
                         setObject(key, value);
                     break;
                 }
 
-                cache = (Map<String, Object>)o;
+                cache = (Map<String, Object>) o;
             }
         }
-        if(get(key) == null)
+        if (get(key) == null)
             setObject(key, value);
     }
 
@@ -215,7 +223,7 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NotNull String key, byte value){
+    public void setDefault(@NotNull String key, byte value) {
         setDefault(key, Byte.valueOf(value));
     }
 
@@ -226,7 +234,7 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NotNull String key, short value){
+    public void setDefault(@NotNull String key, short value) {
         setDefault(key, Short.valueOf(value));
     }
 
@@ -237,7 +245,7 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NotNull String key, int value){
+    public void setDefault(@NotNull String key, int value) {
         setDefault(key, Integer.valueOf(value));
     }
 
@@ -248,7 +256,7 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NotNull String key, long value){
+    public void setDefault(@NotNull String key, long value) {
         setDefault(key, Long.valueOf(value));
     }
 
@@ -259,7 +267,7 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NotNull String key, float value){
+    public void setDefault(@NotNull String key, float value) {
         setDefault(key, Float.valueOf(value));
     }
 
@@ -270,7 +278,7 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NotNull String key, double value){
+    public void setDefault(@NotNull String key, double value) {
         setDefault(key, Double.valueOf(value));
     }
 
@@ -281,7 +289,7 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NotNull String key, char value){
+    public void setDefault(@NotNull String key, char value) {
         setDefault(key, Character.valueOf(value));
     }
 
@@ -292,7 +300,7 @@ public class FileConfig implements Config {
      * @param value The value which will be set.
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void setDefault(@NotNull String key, boolean value){
+    public void setDefault(@NotNull String key, boolean value) {
         setDefault(key, Boolean.valueOf(value));
     }
 
@@ -301,23 +309,23 @@ public class FileConfig implements Config {
      *
      * @param key The key where the element should be removed.
      */
-    public void remove(@NotNull String key){
+    public void remove(@NotNull String key) {
         String[] path = key.split("\\.");
 
-        if(path.length == 1)
+        if (path.length == 1)
             map.remove(key);
         else{
             Map<String, Object> cache = map;
 
-            for(String s : path){
+            for (String s : path) {
                 Object o = cache.get(s);
 
-                if(!(o instanceof Map)){
+                if (!(o instanceof Map)) {
                     cache.remove(s);
                     break;
                 }
 
-                cache = (Map<String, Object>)o;
+                cache = (Map<String, Object>) o;
             }
         }
         map.remove(key);
@@ -330,21 +338,21 @@ public class FileConfig implements Config {
      * @return null if the key is not set or the set value
      */
     @Nullable
-    public Object get(@NotNull String key){
+    public Object get(@NotNull String key) {
         String[] path = key.split("\\.");
 
-        if(path.length == 1)
+        if (path.length == 1)
             return map.get(key);
         else{
             Map<String, Object> cache = map;
 
-            for(String s : path){
+            for (String s : path) {
                 Object o = cache.get(s);
 
-                if(!(o instanceof Map))
+                if (!(o instanceof Map))
                     return o;
 
-                cache = (Map<String, Object>)o;
+                cache = (Map<String, Object>) o;
             }
         }
         return null;
@@ -358,9 +366,9 @@ public class FileConfig implements Config {
      * @throws NoSuchElementException If the value is null or not set.
      */
     @Nullable
-    public String getString(@NotNull String key){
+    public String getString(@NotNull String key) {
         Object value = get(key);
-        if(value == null)
+        if (value == null)
             throw new NoSuchElementException();
 
         return value.toString();
@@ -373,22 +381,22 @@ public class FileConfig implements Config {
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
      */
-    public @Nullable List<?> getList(@NotNull String key){
+    public @Nullable List<?> getList(@NotNull String key) {
 
         Object o = get(key);
 
-        if(o == null)
+        if (o == null)
             return null;
 
-        if(o instanceof List){
-            List<?> list = (List<?>)o;
+        if (o instanceof List) {
+            List<?> list = (List<?>) o;
 
-            if((list).size() != 0){
+            if ((list).size() != 0) {
                 List<Object> subObjects = new ArrayList<>();
 
-                for(int i = 0; i < list.size(); i++){
+                for (int i = 0; i < list.size(); i++) {
                     Object o1 = list.get(i);
-                    if(o1 instanceof Map)
+                    if (o1 instanceof Map)
                         subObjects.add(new FileConfig(this, key + "@" + i));
                     else
                         subObjects.add(o1);
@@ -396,6 +404,7 @@ public class FileConfig implements Config {
 
                 return subObjects;
             }
+            return list;
         }
         throw new ClassCastException();
     }
@@ -405,7 +414,6 @@ public class FileConfig implements Config {
      *
      * @param key The key of the value
      * @return null if the key is not set or the set value
-     * @throws ClassCastException if the value is not List.
      */
     @NotNull
     public FileConfig getSubConfig(@NotNull String key){
@@ -419,11 +427,11 @@ public class FileConfig implements Config {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a integer.
      */
-    public int getInt(@NotNull String key){
+    public int getInt(@NotNull String key) {
         try{
             Object o = get(key);
-            if(o != null)
-                return (int)o;
+            if (o != null)
+                return (int) o;
 
             throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
@@ -438,11 +446,11 @@ public class FileConfig implements Config {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a boolean.
      */
-    public boolean getBoolean(@NotNull String key){
+    public boolean getBoolean(@NotNull String key) {
         try{
             Object o = get(key);
-            if(o != null)
-                return (boolean)o;
+            if (o != null)
+                return (boolean) o;
             throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
@@ -456,11 +464,11 @@ public class FileConfig implements Config {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a long.
      */
-    public long getLong(@NotNull String key){
+    public long getLong(@NotNull String key) {
         try{
             Object o = get(key);
-            if(o != null)
-                return (long)o;
+            if (o != null)
+                return (long) o;
             throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
@@ -474,11 +482,11 @@ public class FileConfig implements Config {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a double.
      */
-    public double getDouble(@NotNull String key){
+    public double getDouble(@NotNull String key) {
         try{
             Object o = get(key);
-            if(o != null)
-                return (double)o;
+            if (o != null)
+                return (double) o;
             throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
@@ -492,11 +500,11 @@ public class FileConfig implements Config {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a character.
      */
-    public char getChar(@NotNull String key){
+    public char getChar(@NotNull String key) {
         try{
             Object o = get(key);
-            if(o != null)
-                return (char)o;
+            if (o != null)
+                return (char) o;
             throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
@@ -510,11 +518,11 @@ public class FileConfig implements Config {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a byte.
      */
-    public byte getByte(@NotNull String key){
+    public byte getByte(@NotNull String key) {
         try{
             Object o = get(key);
-            if(o != null)
-                return (byte)o;
+            if (o != null)
+                return (byte) o;
             throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
@@ -528,11 +536,11 @@ public class FileConfig implements Config {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a short.
      */
-    public short getShort(@NotNull String key){
+    public short getShort(@NotNull String key) {
         try{
             Object o = get(key);
-            if(o != null)
-                return (short)o;
+            if (o != null)
+                return (short) o;
             throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
@@ -546,22 +554,22 @@ public class FileConfig implements Config {
      * @return The set value
      * @throws NoSuchElementException If the value is neither set nor is a float.
      */
-    public float getFloat(@NotNull String key){
+    public float getFloat(@NotNull String key) {
         try{
             Object o = get(key);
-            if(o != null)
-                return (float)o;
+            if (o != null)
+                return (float) o;
             throw new NoSuchElementException();
         }catch(ClassCastException | NullPointerException e){
             throw new NoSuchElementException();
         }
     }
 
-    @NotNull Map<String, Object> getMap(){
+    @NotNull Map<String, Object> getMap() {
         return this.map;
     }
 
-    public void setMap(@NotNull Map<String, Object> map){
+    public void setMap(@NotNull Map<String, Object> map) {
         this.map = map;
     }
 
@@ -572,7 +580,7 @@ public class FileConfig implements Config {
      * @return a map from the config. If the file does not exist or other errors appear this will return an empty map.
      */
     @NotNull
-    private Map<String, Object> load(@NotNull File f){
+    private Map<String, Object> load(@NotNull File f) {
         try{
             return load(new FileInputStream(f));
         }catch(FileNotFoundException e){
@@ -587,7 +595,7 @@ public class FileConfig implements Config {
      * @return a map from the config. If the input stream cannot be parsed or other errors appear this will return an empty map.
      */
     @NotNull
-    private Map<String, Object> load(@NotNull InputStream in){
+    private Map<String, Object> load(@NotNull InputStream in) {
         Map<String, Object> map = this.yaml.load(in);
 
         return map == null ? new LinkedHashMap<>() : map;
@@ -598,20 +606,21 @@ public class FileConfig implements Config {
      *
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void reload(){
-        if(isSubConfig){
-            if(this.fileConfig != null && key != null){
+    public void reload() {
+        if (isSubConfig) {
+            if (this.fileConfig != null && key != null) {
                 this.fileConfig.reload();
+                System.out.println(fileConfig);
                 Object o = this.fileConfig.get(key);
-                if(o == null){
+                if (o == null) {
                     setMap(new LinkedHashMap<>());
                     return;
-                }else if(!(o instanceof Map))
+                }else if (!(o instanceof Map))
                     throw new UnsupportedOperationException("Could not find a map at the given location");
-                setMap((Map<String, Object>)o);
-            }
+                setMap((Map<String, Object>) o);
+            }else throw new UnsupportedOperationException();
         }else{
-            if(this.file == null)
+            if (this.file == null)
                 throw new UnsupportedOperationException("This config is read-only.");
             this.map = load(this.file);
         }
@@ -620,13 +629,13 @@ public class FileConfig implements Config {
     }
 
     /**
-     * Create the file if it not exist and save it into the file.
+     * Create the file if it not exists and save it into the file.
      *
      * @throws UnsupportedOperationException If the config is read-only.
      */
-    public void save(){
-        if(isSubConfig){
-            if(this.fileConfig != null && key != null){
+    public void save() {
+        if (isSubConfig) {
+            if (this.fileConfig != null && key != null) {
                 Map<String, Object> map = this.fileConfig.getMap();
                 map.put(this.key, this.getMap());
 
@@ -634,10 +643,10 @@ public class FileConfig implements Config {
                 this.fileConfig.save();
             }
         }else{
-            if(file == null)
+            if (file == null)
                 throw new UnsupportedOperationException("This config is read-only.");
 
-            if(file.getParentFile() != null)
+            if (file.getParentFile() != null)
                 file.getParentFile().mkdirs();
             try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))){
                 this.yaml.dump(map, writer);
@@ -650,7 +659,7 @@ public class FileConfig implements Config {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "FileConfig{" +
                 "file=" + file +
                 ", yaml=" + yaml +
