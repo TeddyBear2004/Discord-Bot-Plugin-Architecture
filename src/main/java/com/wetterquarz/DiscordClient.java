@@ -47,7 +47,7 @@ public class DiscordClient {
     private final @NotNull GatewayDiscordClient gatewayDiscordClient;
     private final @NotNull Config config;
 
-    private DiscordClient(Config config){
+    public DiscordClient(Config config){
         this.config = config;
 
         this.pluginManager = new PluginManager();
