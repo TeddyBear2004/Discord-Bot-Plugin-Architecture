@@ -13,6 +13,7 @@ import discord4j.gateway.intent.IntentSet;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import reactor.core.Disposable;
 
 import java.time.Duration;
 import java.util.*;
@@ -22,8 +23,13 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 public class DiscordClient {
     @NotNull private static final DiscordClient discordClient;
     @NotNull private static final Config config;
+    @NotNull private static final List<Disposable> DISPOSABLES;
 
     static{
+        DISPOSABLES = new ArrayList<>();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> DISPOSABLES.forEach(Disposable::dispose)));
+
         config = new FileConfig("config");
 
         config.setDefault("token", "set here the token!");
@@ -51,7 +57,7 @@ public class DiscordClient {
 
         this.pluginManager = new PluginManager();
         IntentSet intents = this.pluginManager.loadIntents();
-        intents = intents.or(IntentSet.of(Intent.GUILD_MESSAGES));
+        intents = intents.or(IntentSet.of(Intent.GUILD_MESSAGES, Intent.DIRECT_MESSAGE_REACTIONS, Intent.DIRECT_MESSAGES));
 
         System.out.println("Starting discord bot with following intents: " + intents);
 
@@ -129,5 +135,9 @@ public class DiscordClient {
 
     public @NotNull GatewayDiscordClient getGatewayDiscordClient(){
         return gatewayDiscordClient;
+    }
+
+    public void addDisposable(Disposable disposable){
+        DISPOSABLES.add(disposable);
     }
 }
