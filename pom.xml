@@ -26,6 +26,24 @@
 			<groupId>com.discord4j</groupId>
 			<artifactId>discord4j-core</artifactId>
 			<version>3.2.1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>reactor-extra</artifactId>
+					<groupId>io.projectreactor.addons</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>reactor-core</artifactId>
+					<groupId>io.projectreactor</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>error_prone_annotations</artifactId>
+					<groupId>com.google.errorprone</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>checker-qual</artifactId>
+					<groupId>org.checkerframework</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -50,6 +68,12 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>2.0.0-alpha1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -78,6 +102,14 @@
 				<exclusion>
 					<groupId>io.projectreactor.netty</groupId>
 					<artifactId>reactor-netty</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>reactor-core</artifactId>
+					<groupId>io.projectreactor</groupId>
 				</exclusion>
 			</exclusions>
 
