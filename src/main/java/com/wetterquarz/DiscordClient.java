@@ -13,6 +13,7 @@ import discord4j.gateway.intent.IntentSet;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import reactor.core.Disposable;
 
 import java.time.Duration;
 import java.util.*;
@@ -21,9 +22,15 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.*;
 
 public class DiscordClient {
     @NotNull private static final DiscordClient discordClient;
+    @NotNull private static final Config config;
+    @NotNull private static final List<Disposable> DISPOSABLES;
 
     static{
-        FileConfig config = new FileConfig("config");
+        DISPOSABLES = new ArrayList<>();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> DISPOSABLES.forEach(Disposable::dispose)));
+
+        config = new FileConfig("config");
 
         config.setDefault("token", "set here the token!");
         config.setDefault("prefix", "!");
@@ -45,14 +52,12 @@ public class DiscordClient {
     private final @NotNull PluginManager pluginManager;
     private final @Nullable DatabaseManager databaseManager;
     private final @NotNull GatewayDiscordClient gatewayDiscordClient;
-    private final @NotNull Config config;
 
-    public DiscordClient(Config config){
-        this.config = config;
+    private DiscordClient(@NotNull Config config){
 
         this.pluginManager = new PluginManager();
         IntentSet intents = this.pluginManager.loadIntents();
-        intents = intents.or(IntentSet.of(Intent.GUILD_MESSAGES));
+        intents = intents.or(IntentSet.of(Intent.GUILD_MESSAGES, Intent.DIRECT_MESSAGE_REACTIONS, Intent.DIRECT_MESSAGES));
 
         System.out.println("Starting discord bot with following intents: " + intents);
 
@@ -108,6 +113,10 @@ public class DiscordClient {
         return discordClient;
     }
 
+    public static @NotNull Config getConfig(){
+        return config;
+    }
+
     public @NotNull EventDispatcher getEventDispatcher(){
         return gatewayDiscordClient.getEventDispatcher();
     }
@@ -124,11 +133,11 @@ public class DiscordClient {
         return commandManager;
     }
 
-    public @NotNull Config getConfig(){
-        return config;
-    }
-
     public @NotNull GatewayDiscordClient getGatewayDiscordClient(){
         return gatewayDiscordClient;
+    }
+
+    public void addDisposable(Disposable disposable){
+        DISPOSABLES.add(disposable);
     }
 }

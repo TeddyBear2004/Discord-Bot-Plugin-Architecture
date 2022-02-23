@@ -9,5 +9,5 @@ import org.jetbrains.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 public interface CommandExecutable {
-    Mono<Message> execute(@NotNull String[] usedAlias, String[] args, @NotNull User executor, @Nullable Command rootCommand, @NotNull MessageChannel channel, @NotNull GatewayDiscordClient discordClient);
+    @NotNull Mono<Message> execute(@NotNull String[] usedAlias, @NotNull String[] args, @NotNull User executor, @Nullable Command rootCommand, @NotNull MessageChannel channel, @NotNull GatewayDiscordClient discordClient);
 }

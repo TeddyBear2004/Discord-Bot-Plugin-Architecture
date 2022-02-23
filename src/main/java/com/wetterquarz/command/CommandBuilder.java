@@ -13,8 +13,7 @@ import com.wetterquarz.DiscordClient;
  * @author Teddy
  */
 public class CommandBuilder extends CommandSegmentBuilder {
-    @NotNull
-    private String prefix;
+    private @NotNull String prefix;
     private boolean canBotSend;
 
     /**
@@ -30,7 +29,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
         if(name.contains(" "))
             throw new IllegalArgumentException("You may not use spaces within the name.");
 
-        this.prefix = DiscordClient.getDiscordClient().getConfig().getString("prefix");
+        this.prefix = DiscordClient.getConfig().getString("prefix");
 
         this.canBotSend = false;
     }
@@ -41,7 +40,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
      * @param canBotSend Include bot messages when checking for the command. (default = false)
      * @return the new {@link CommandBuilder} object
      */
-    public CommandBuilder includingBotMessages(boolean canBotSend){
+    public @NotNull CommandBuilder includingBotMessages(boolean canBotSend){
         this.canBotSend = canBotSend;
         return this;
     }
@@ -52,8 +51,8 @@ public class CommandBuilder extends CommandSegmentBuilder {
      * @param prefix the new prefix or null if it should be the normal.
      * @return the new {@link CommandBuilder} object
      */
-    public CommandBuilder withPrefix(@Nullable String prefix){
-        this.prefix = prefix == null ? DiscordClient.getDiscordClient().getConfig().getString("prefix") : prefix;
+    public @NotNull CommandBuilder withPrefix(@Nullable String prefix){
+        this.prefix = prefix == null ? DiscordClient.getConfig().getString("prefix") : prefix;
         return this;
     }
 
@@ -63,7 +62,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
      * @param aliases The list of String
      * @return the new {@link CommandBuilder} object
      */
-    public CommandBuilder addAliases(String... aliases){
+    public @NotNull CommandBuilder addAliases(@NotNull String... aliases){
         super.addAliases(aliases);
         return this;
     }
@@ -75,8 +74,8 @@ public class CommandBuilder extends CommandSegmentBuilder {
      * @throws IllegalArgumentException if the element has already been registered
      */
     @Override
-    public CommandBuilder addSubCommandLevel(@NotNull String name, CommandExecutable e, Consumer<CommandSegmentBuilder> commandSegmentBuilder){
-    	super.addSubCommandLevel(name, e, commandSegmentBuilder);
+    public @NotNull CommandBuilder addSubCommandLevel(@NotNull String name, @Nullable CommandExecutable e, @Nullable Consumer<CommandSegmentBuilder> commandSegmentBuilder){
+        super.addSubCommandLevel(name, e, commandSegmentBuilder);
         return this;
     }
 
@@ -85,8 +84,7 @@ public class CommandBuilder extends CommandSegmentBuilder {
      *
      * @return The {@link Command} which was built.
      */
-    @NotNull
-    public Command build(){
+    public @NotNull Command build(){
         return new Command(name, commandExecutable, aliases, prefix, canBotSend, buildSegments());
     }
 }

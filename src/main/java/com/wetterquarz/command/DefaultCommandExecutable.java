@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.Map;
 
 public class DefaultCommandExecutable implements CommandExecutable {
-    private final CommandSegment commandSegment;
+    private final @NotNull CommandSegment commandSegment;
 
-    public DefaultCommandExecutable(CommandSegment commandSegment){
+    public DefaultCommandExecutable(@NotNull CommandSegment commandSegment){
         this.commandSegment = commandSegment;
     }
 
     @Override
-    public Mono<Message> execute(@NotNull String[] usedAlias, String[] args, @NotNull User executor, @Nullable Command rootCommand, @NotNull MessageChannel channel, @NotNull GatewayDiscordClient discordClient){
+    public @NotNull Mono<Message> execute(@NotNull String[] usedAlias, String[] args, @NotNull User executor, @Nullable Command rootCommand, @NotNull MessageChannel channel, @NotNull GatewayDiscordClient discordClient){
         StringBuilder builder;
 
         if(commandSegment.getCommandSegments() != null && commandSegment.getCommandSegments().size() != 0){

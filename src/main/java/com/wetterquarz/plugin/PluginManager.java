@@ -1,19 +1,19 @@
 package com.wetterquarz.plugin;
 
+import com.google.common.collect.ImmutableMap;
 import com.wetterquarz.config.FileConfig;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -25,10 +25,8 @@ public class PluginManager {
             PLUGIN_FOLDER.mkdir();
     }
 
-    @NotNull
-    private static final Logger LOGGER = LogManager.getLogger(PluginManager.class.getName());
-    @NotNull
-    private Map<String, PluginMetadata> plugins = new HashMap<>();
+    private static final @NotNull Logger LOGGER = LogManager.getLogger(PluginManager.class.getName());
+    private @NotNull Map<String, PluginMetadata> plugins = new HashMap<>();
 
     public PluginManager(){
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -38,7 +36,11 @@ public class PluginManager {
         }));
     }
 
-    public IntentSet loadIntents(){
+    public @NotNull Map<String, PluginMetadata> getPlugins(){
+        return ImmutableMap.copyOf(plugins);
+    }
+
+    public @NotNull IntentSet loadIntents(){
         IntentSet intents = IntentSet.none();
         for(File file : PluginManager.PLUGIN_FOLDER.listFiles()){
             if(file.getName().endsWith(".jar")){
@@ -49,7 +51,12 @@ public class PluginManager {
                         return null;
                     }
                     FileConfig config = new FileConfig(jar.getInputStream(pluginConfig));
-                    List<?> rawIntents = config.getList("intents");
+                    List<?> rawIntents;
+                    try{
+                        rawIntents = config.getList("intents");
+                    }catch(NoSuchElementException e){
+                        rawIntents = Collections.emptyList();
+                    }
                     IntentSet intentSet = IntentSet.none();
 
                     if(rawIntents != null){
@@ -77,10 +84,10 @@ public class PluginManager {
                 try(JarFile jar = new JarFile(file)){
                     PluginMetadata pluginMeta = loadJar(jar, file.toURI().toURL());
                     if(pluginMeta != null){
-                        if(plugins.containsKey(pluginMeta.getName())){
+                        if(plugins.containsKey(pluginMeta.getName().toLowerCase())){
                             LOGGER.error(pluginMeta.getName() + " already exists.");
                         }else{
-                            plugins.put(pluginMeta.getName(), pluginMeta);
+                            plugins.put(pluginMeta.getName().toLowerCase(), pluginMeta);
                             pluginMeta.getPlugin().logger = LogManager.getLogger(pluginMeta.getName());
                             pluginMeta.getPlugin().config = new FileConfig(new File(PluginManager.PLUGIN_FOLDER, pluginMeta.getName() + File.pathSeparator + "config.yml"));
                             pluginMeta.getPlugin().onLoad();
@@ -94,7 +101,7 @@ public class PluginManager {
         }
     }
 
-    private PluginMetadata loadJar(JarFile jar, URL jarLoc) throws IOException{
+    private @Nullable PluginMetadata loadJar(@NotNull JarFile jar, @NotNull URL jarLoc) throws IOException{
         ZipEntry pluginConfig = jar.getEntry("plugin.yml");
         if(pluginConfig == null){
             LOGGER.error(jar.getName() + " does not contain a plugin.yml");
@@ -105,6 +112,12 @@ public class PluginManager {
         String name = config.getString("name");
         String label = config.getString("label");
         String version = config.getString("version");
+        String description;
+        try{
+            description = config.getString("description");
+        }catch(NoSuchElementException e){
+            description = "No description provided.";
+        }
 
         if(main == null || name == null || version == null){
             LOGGER.error(jar.getName() + "'s plugin.yml does not contain main, name or version entries.");
@@ -129,6 +142,8 @@ public class PluginManager {
                 meta.setPlugin(p);
                 if(label != null)
                     meta.setLabel(label);
+                meta.setDescription(description);
+
                 return meta;
             }catch(IllegalAccessException | InstantiationException e){
                 LOGGER.error(jar.getName() + "'s main class does not have an accessible default constructor.");
