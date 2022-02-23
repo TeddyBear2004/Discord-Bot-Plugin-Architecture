@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.wetterquarz.config.FileConfig;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

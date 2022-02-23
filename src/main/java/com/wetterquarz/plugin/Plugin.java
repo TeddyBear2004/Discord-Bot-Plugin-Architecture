@@ -2,7 +2,7 @@ package com.wetterquarz.plugin;
 
 import com.wetterquarz.command.CommandExecutable;
 import com.wetterquarz.config.FileConfig;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
