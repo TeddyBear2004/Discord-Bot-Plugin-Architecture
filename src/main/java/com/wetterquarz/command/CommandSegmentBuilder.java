@@ -7,12 +7,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CommandSegmentBuilder {
-    CommandExecutable commandExecutable;
-    String name;
+    @Nullable CommandExecutable commandExecutable;
+    @NotNull String name;
     @NotNull protected final List<String> aliases;
 
 
-    CommandSegmentBuilder(String name, CommandExecutable commandExecutable){
+    CommandSegmentBuilder(@NotNull String name, @Nullable CommandExecutable commandExecutable){
         if(name.contains(" "))
             throw new IllegalArgumentException("You may not use spaces within the name.");
 
@@ -28,30 +28,29 @@ public class CommandSegmentBuilder {
      * @param aliases The list of String
      * @return the new {@link CommandBuilder} object
      */
-    public CommandSegmentBuilder addAliases(String... aliases){
+    public @NotNull CommandSegmentBuilder addAliases(@NotNull String... aliases){
         this.aliases.addAll(Arrays.asList(aliases));
         return this;
     }
 
-    @NotNull
-    protected CommandSegment build(){
+    protected @NotNull CommandSegment build(){
         return new CommandSegment(buildSegments(), commandExecutable);
     }
 
-    List<CommandSegmentBuilder> subCommandBuilders;
-    @Nullable
-    protected Map<String, CommandSegment> buildSegments(){
+    @Nullable List<CommandSegmentBuilder> subCommandBuilders;
+
+    protected @Nullable Map<String, CommandSegment> buildSegments(){
         if(subCommandBuilders == null)
             return null;
 
         Map<String, CommandSegment> commandSegments = new TreeMap<>();
 
-        for(CommandSegmentBuilder subCommandBuilder : subCommandBuilders) {
-        	CommandSegment seg = subCommandBuilder.build();
+        for(CommandSegmentBuilder subCommandBuilder : subCommandBuilders){
+            CommandSegment seg = subCommandBuilder.build();
             commandSegments.put(subCommandBuilder.name, seg);
-            for (String alias : subCommandBuilder.aliases) {
-				commandSegments.put(alias, seg);
-			}
+            for(String alias : subCommandBuilder.aliases){
+                commandSegments.put(alias, seg);
+            }
         }
 
         return commandSegments;
@@ -64,31 +63,33 @@ public class CommandSegmentBuilder {
      * @return the new {@link CommandBuilder} object
      * @throws IllegalArgumentException if the element has already been registered
      */
-    private CommandSegmentBuilder addSubCommandLevel(CommandSegmentBuilder commandSegmentBuilder){
-    	if(subCommandBuilders == null) {
-    		subCommandBuilders = new ArrayList<CommandSegmentBuilder>(Collections.singleton(commandSegmentBuilder));
-    	} else {
-    		List<String> reserved = new ArrayList<>();
-    		for(CommandSegmentBuilder b : subCommandBuilders) {
-    			reserved.add(b.name);
-    			reserved.addAll(b.aliases);
-    		}
-    		List<String> newReserved = new ArrayList<>(commandSegmentBuilder.aliases);
-    		newReserved.add(commandSegmentBuilder.name);
-    		if(Collections.disjoint(reserved, newReserved)) {
-    			subCommandBuilders.add(commandSegmentBuilder);
-    		} else {
-    			throw new IllegalArgumentException("Duplicate meanings for one command");
-    		}
-    	}
+
+    private @NotNull CommandSegmentBuilder addSubCommandLevel(@NotNull CommandSegmentBuilder commandSegmentBuilder){
+        if(subCommandBuilders == null){
+            subCommandBuilders = new ArrayList<>(Collections.singleton(commandSegmentBuilder));
+        }else{
+            List<String> reserved = new ArrayList<>();
+            for(CommandSegmentBuilder b : subCommandBuilders){
+                reserved.add(b.name);
+                reserved.addAll(b.aliases);
+            }
+            List<String> newReserved = new ArrayList<>(commandSegmentBuilder.aliases);
+            newReserved.add(commandSegmentBuilder.name);
+            if(Collections.disjoint(reserved, newReserved)){
+                subCommandBuilders.add(commandSegmentBuilder);
+            }else{
+                throw new IllegalArgumentException("Duplicate meanings for one command");
+            }
+        }
         return this;
     }
 
 
-	public CommandSegmentBuilder addSubCommandLevel(@NotNull String name, CommandExecutable e, Consumer<CommandSegmentBuilder> commandSegmentBuilder) {
-		CommandSegmentBuilder b = new CommandSegmentBuilder(name, e);
-		commandSegmentBuilder.accept(b);
-    	this.addSubCommandLevel(b);
-		return this;
-	}
+    public @NotNull CommandSegmentBuilder addSubCommandLevel(@NotNull String name, @Nullable CommandExecutable e, @Nullable Consumer<CommandSegmentBuilder> commandSegmentBuilder){
+        CommandSegmentBuilder b = new CommandSegmentBuilder(name, e);
+        if(commandSegmentBuilder != null)
+            commandSegmentBuilder.accept(b);
+        this.addSubCommandLevel(b);
+        return this;
+    }
 }

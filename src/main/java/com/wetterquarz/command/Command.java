@@ -4,19 +4,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class Command extends CommandSegment {
     @NotNull final String name;
-    private final List<String> aliases;
-    private final String prefix;
+    @NotNull private final List<String> aliases;
+    @NotNull private final String prefix;
     private final boolean botCanSend;
 
-    Command(String name,
-            CommandExecutable commandExecutable,
-            List<String> aliases,
-            String prefix,
+    Command(@NotNull String name,
+            @Nullable CommandExecutable commandExecutable,
+            @NotNull List<String> aliases,
+            @NotNull String prefix,
             boolean botsCanSend,
-            Map<String, CommandSegment> commandSegments){
+            @Nullable Map<String, CommandSegment> commandSegments){
         super(commandSegments, commandExecutable);
 
         this.name = name;
@@ -25,11 +26,11 @@ public class Command extends CommandSegment {
         this.botCanSend = botsCanSend;
     }
 
-    public List<String> getAliases(){
+    public @NotNull List<String> getAliases(){
         return aliases;
     }
 
-    public String getPrefix(){
+    public @NotNull String getPrefix(){
         return prefix;
     }
 

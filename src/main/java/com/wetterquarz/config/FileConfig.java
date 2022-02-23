@@ -1,7 +1,7 @@
 package com.wetterquarz.config;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
@@ -372,13 +372,14 @@ public class FileConfig implements Config {
      * @param key The key of the value
      * @return null if the key is not set or the set value
      * @throws ClassCastException if the value is not List.
+     * @throws NoSuchElementException If the value is null or not set.
      */
     public @Nullable List<?> getList(@NotNull String key){
 
         Object o = get(key);
 
         if(o == null)
-            return null;
+            throw new NoSuchElementException();
 
         if(o instanceof List){
             List<?> list = (List<?>)o;

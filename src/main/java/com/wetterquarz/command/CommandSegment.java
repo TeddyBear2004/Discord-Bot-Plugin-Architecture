@@ -10,9 +10,9 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.ImmutableMap;
 
 public class CommandSegment {
-    @NotNull final CommandExecutable commandExecutable;
-    @Nullable final Map<String, CommandSegment> commandSegments;
-    @Nullable final Map<String, CommandSegment> commandSegmentsLowerCase;
+    final @NotNull CommandExecutable commandExecutable;
+    final @Nullable Map<String, CommandSegment> commandSegments;
+    final @Nullable Map<String, CommandSegment> commandSegmentsLowerCase;
 
     public CommandSegment(@Nullable Map<String, CommandSegment> commandSegments, @Nullable CommandExecutable commandExecutable){
 
@@ -37,7 +37,7 @@ public class CommandSegment {
         }
     }
 
-    public void forEachPossibleArgument(BiConsumer<String, CommandSegment> biConsumer){
+    public void forEachPossibleArgument(@NotNull BiConsumer<String, CommandSegment> biConsumer){
         if(commandSegments == null)
             return;
 
@@ -48,7 +48,7 @@ public class CommandSegment {
         return commandSegments;
     }
 
-    public Map<String, CommandSegment> getCommandSegmentsLowerCase(){
+    public @Nullable Map<String, CommandSegment> getCommandSegmentsLowerCase(){
         return commandSegmentsLowerCase;
     }
 
