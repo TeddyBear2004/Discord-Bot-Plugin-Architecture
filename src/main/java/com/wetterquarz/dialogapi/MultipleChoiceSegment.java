@@ -11,17 +11,17 @@ import discord4j.core.object.reaction.ReactionEmoji;
 import discord4j.core.spec.EmbedCreateSpec;
 import org.jetbrains.annotations.NotNull;
 import reactor.core.Disposable;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-public class MultipleChoiceSegment <T> extends DialogSegment<T> {
+public class MultipleChoiceSegment<T> extends DialogSegment<T> {
     private static boolean eventsStarted = false;
 
     private final static ReactionEmoji WHITE_CHECK_MARK = ReactionEmoji.unicode("✅");
@@ -69,9 +69,15 @@ public class MultipleChoiceSegment <T> extends DialogSegment<T> {
                 .doOnNext(message -> CURRENT_ACTIONS.get(tuple2).setMessage(message))
                 .flatMap(message -> message.addReaction(WHITE_CHECK_MARK)
                         .then(message.addReaction(X))
-                        .then(Flux.fromIterable(options.keySet())
-                                .flatMap(message::addReaction)
-                                .then(Mono.fromFuture(future))));
+                        .then(addReactions(message, options.keySet()))
+                        .then(Mono.fromFuture(future)));
+    }
+
+
+    private static Mono<Void> addReactions(Message message, Set<ReactionEmoji> reactions) {
+        Mono<Void> mono = Mono.empty();
+        for (ReactionEmoji reactionEmoji : reactions) mono = mono.then(message.addReaction(reactionEmoji));
+        return mono;
     }
 
     private static @NotNull EmbedCreateSpec generateEmbed(Tuple2<User, MessageChannel> tuple2) {
